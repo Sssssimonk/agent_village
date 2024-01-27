@@ -37,10 +37,24 @@ def generate_prompt(task, person, world):
     prompt = file.read()
     file.close()
 
-    prompt = prompt.format(person.name, 
-                           person.description, 
-                           person.personality, 
-                           world.town_areas.keys(), 
-                           person.location)
-
+    if task == "daily_plan":
+        prompt = prompt.format(person.name, 
+                            person.description, 
+                            person.personality, 
+                            world.town_areas.keys(), 
+                            person.location)
+    
+    if task == "action":
+        prompt = prompt.format(person.name,
+                               person.description,
+                               person.personality,
+                               world.town_areas.keys(),
+                               person.location,
+                               person.daily_plan,
+                               world.cur_time)
     return prompt
+
+def generate_response(prompt, max_new_tokens=50):
+    response = pipe(prompt, max_new_tokens)
+
+    return response

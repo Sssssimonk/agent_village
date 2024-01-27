@@ -41,5 +41,6 @@ class World:
         for resident in residents.keys():
             self.resident[resident] = Person(resident["Name"], 
                                              resident["Description"], 
-                                             resident["Personality"])
+                                             resident["Personality"],
+                                             self)
 
