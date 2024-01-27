@@ -1,7 +1,7 @@
 from transformers import pipeline
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import torch
-import BitsAndBytesConfig
+from transformers import BitsAndBytesConfig
 
 
 bnb_config = BitsAndBytesConfig(load_in_4bit=True,
