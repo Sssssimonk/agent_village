@@ -1,0 +1,12 @@
+{
+    "town_areas": {
+      "Town Square": "The center of the town",
+      "Police Office": "The town's security department maintains the safety of the town",
+      "Supermarket": "Place for residents to buy daily groceries",
+      "Village Park": "Ordinary town residents walk and play here, and gather here on weekends.",
+      "City Hall": "This is the administrative headquarters of the town",
+      "Coffee Shop": "Places that serve different drinks like coffee and other beverages",
+      "Housing Area": "An area that the residents of the village lives",
+      "School": "School in this village"
+    }
+}
