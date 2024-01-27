@@ -22,6 +22,8 @@ class Person:
 
         self.daily_plan = response
 
+        print("The daily plan for " + self.name + "is : " + self.daily_plan)
+
     def retrieve(self):
         pass 
 
@@ -30,7 +32,9 @@ class Person:
 
     def action(self):
         prompt = generate_prompt("action", self, self.world)
+        response = generate_response(prompt)
 
-        pass
+
+        return response
 
 
