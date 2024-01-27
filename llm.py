@@ -29,6 +29,18 @@ pipe = pipeline(task="text-generation",
 print("hf_model_initialized")
 
 
-def generate_prompt(task):
+def generate_prompt(task, person, world):
     # from prompt file task.txt, read the prompt template and then out put a str prompt.
-    pass
+    prompt_template = "prompt_tamplates" + task + ".txt"
+
+    file = open(prompt_template, "r")
+    prompt = file.read()
+    file.close()
+
+    prompt = prompt.format(person.name, 
+                           person.description, 
+                           person.personality, 
+                           world.town_areas.keys(), 
+                           person.location)
+
+    return prompt

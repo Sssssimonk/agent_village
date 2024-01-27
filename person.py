@@ -1,9 +1,11 @@
 class Person:
 
-    def __init__(self, name, description) -> None:
+    def __init__(self, name, description, personality) -> None:
         self.name = name
         self.description = description
         self.memory = []
+        self.location = "Town Square"
+        self.personality = personality
 
 
     def perceive(self, world):

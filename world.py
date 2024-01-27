@@ -1,5 +1,6 @@
 import networkx as nx
 import json
+from person import Person
 
 class World:
     def __init__(self) -> None:
@@ -31,3 +32,14 @@ class World:
         world_graph.add_edge("Housing Area", "Police Office")
 
         return world_graph
+    
+    def initialize_agents(self) -> None:
+        with open("world_settings", "r") as json_file:
+            data = json.load(json_file)
+            residents = data["residents"]
+
+        for resident in residents.keys():
+            self.resident[resident] = Person(resident["Name"], 
+                                             resident["Description"], 
+                                             resident["Personality"])
+

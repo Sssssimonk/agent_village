@@ -1,0 +1,17 @@
+<Information Given>
+
+Name: {}
+Discription: {}
+Personality: {}
+Town Areas: {}
+Current Location: {}
+
+<Instruction>: Based on the information given, create a daily plan for this person. Use first-person perspective
+
+<Output format>:
+
+8 am : 
+9 am :
+10 am:
+...
+24 pm :

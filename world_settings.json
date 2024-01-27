@@ -8,5 +8,19 @@
       "Coffee Shop": "Places that serve different drinks like coffee and other beverages",
       "Housing Area": "An area that the residents of the village lives",
       "School": "School in this village"
+    },
+
+    "town_residents": {
+      "Tom": {
+        "Name": "Tom Jackson",
+        "Description" : "Tom is a kind and dedicated school teacher who has been living in the village his entire life. He is in his late thirties and has a passion for teaching and helping others. Tom is well-respected in the community and is loved by his students for his patience and understanding.",
+        "Personality" : "Passionate, kind, Brave"
+      },
+
+      "Jack": {
+        "Name" : "Jack Tomson",
+        "Description" : "Jack is a 32-year-old man who has lived in the small village all his life. He is the only son of the village's former police chief, who instilled in him a strong sense of duty and justice. Jack is tall and muscular, with short dark hair and piercing blue eyes. He takes his role as the village's only police officer very seriously and is known for his unwavering dedication to protecting the community.",
+        "Personality": "outgoing, kind"
+      }
     }
 }
