@@ -1,7 +1,5 @@
 from transformers import pipeline
 from transformers import AutoTokenizer, AutoModelForCausalLM
-import json
-import warnings
 import torch
 import BitsAndBytesConfig
 
@@ -33,3 +31,4 @@ print("hf_model_initialized")
 
 def generate_prompt(task):
     # from prompt file task.txt, read the prompt template and then out put a str prompt.
+    pass
