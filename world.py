@@ -6,15 +6,16 @@ class World:
     def __init__(self) -> None:
 
         self.world_graph = self.initialize_world()
-        self.resident = {}
+        self.residents = {}
         self.cur_time = 8
-
+        
+        self.initialize_agents()
         
     
 
 
     def initialize_world(self) -> nx.Graph:
-        with open("world_settings", "r") as json_file:
+        with open("world_settings.json", "r") as json_file:
             data = json.load(json_file)
             town_areas = data["town_areas"]
 
@@ -30,17 +31,20 @@ class World:
         world_graph.add_edge("School", "Village Park")
         world_graph.add_edge("Village Park", "Housing Area")
         world_graph.add_edge("Housing Area", "Police Office")
+        
+        print("World Initialized")
 
         return world_graph
     
     def initialize_agents(self) -> None:
-        with open("world_settings", "r") as json_file:
+        with open("world_settings.json", "r") as json_file:
             data = json.load(json_file)
-            residents = data["residents"]
+            residents = data["town_residents"]
 
         for resident in residents.keys():
-            self.resident[resident] = Person(resident["Name"], 
-                                             resident["Description"], 
-                                             resident["Personality"],
+            self.residents[resident] = Person(residents[resident]["Name"], 
+                                             residents[resident]["Description"], 
+                                             residents[resident]["Personality"],
                                              self)
 
+        print("Agent Initialized")
