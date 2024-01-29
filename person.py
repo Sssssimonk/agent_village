@@ -32,11 +32,21 @@ class Person:
     def reflect(self):
         pass 
 
-    def action(self):
-        prompt = generate_prompt("action", self, self.world)
-        response = generate_response(prompt)
+    def action(self, task="move"):
 
-        return response
+        if task == "move":
+            prompt = generate_prompt("action", self, self.world)
+            response = generate_response(prompt)
+
+            return response
+        
+        if task == "chat":
+            #TODO
+            pass
+
+        if task == "some other action":
+            #TODO
+            pass
 
 # ===================================== Agent action with RAG ======================================#
 
