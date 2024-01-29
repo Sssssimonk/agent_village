@@ -14,9 +14,11 @@ class Person:
 
 
     def perceive(self, world):
+        # perceive current environment and memorize into memory
         pass 
 
     def plan(self):
+        # create daily plan whenever the new day starts
         prompt = generate_prompt("daily_plan", self, self.world)
         response = generate_response(prompt)
 
@@ -34,7 +36,24 @@ class Person:
         prompt = generate_prompt("action", self, self.world)
         response = generate_response(prompt)
 
-
         return response
+
+# ===================================== Agent action with RAG ======================================#
+
+    def rag_plan(self):
+        # given memory in vector database, create daily plan
+        pass 
+
+    def rag_retreive(self):
+        # perceive current environment and memorize into vector database(memory)
+        pass
+
+    def rag_action(self):
+        pass
+
+
+
+
+        
 
 

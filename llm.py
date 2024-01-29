@@ -4,6 +4,8 @@ import torch
 from transformers import BitsAndBytesConfig
 
 
+
+# ==================== Initialzied HF model ==================== # 
 bnb_config = BitsAndBytesConfig(load_in_4bit=True,
                                 bnb_4bit_use_double_quant=True,
                                 bnb_4bit_quant_type="nf4",
@@ -26,6 +28,7 @@ pipe = pipeline(task="text-generation",
                 tokenizer=tokenizer
                 #PretrainedConfig = xxx
                 )
+
 print("hf_model_initialized")
 
 
@@ -55,6 +58,7 @@ def generate_prompt(task, person, world):
     return prompt
 
 def generate_response(prompt, max_new_tokens=50):
+    # given the prompt provided, create output from the pipeline
     response = pipe(prompt, max_new_tokens=max_new_tokens)
 
     return response

@@ -15,6 +15,7 @@ class World:
 
 
     def initialize_world(self) -> nx.Graph:
+        # initialize town areas and world graph
         with open("world_settings.json", "r") as json_file:
             data = json.load(json_file)
             town_areas = data["town_areas"]
@@ -38,6 +39,7 @@ class World:
         return world_graph
     
     def initialize_agents(self) -> None:
+        # instantiate person and add them to the self.residents
         with open("world_settings.json", "r") as json_file:
             data = json.load(json_file)
             residents = data["town_residents"]
@@ -54,4 +56,4 @@ class World:
         
 if __name__ == "__main__":
     world = World()
-    nx.draw(world.world_graph, with_labels=True)
+    
