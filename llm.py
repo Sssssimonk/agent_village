@@ -31,7 +31,7 @@ print("hf_model_initialized")
 
 def generate_prompt(task, person, world):
     # from prompt file task.txt, read the prompt template and then out put a str prompt.
-    prompt_template = "prompt_tamplates" + task + ".txt"
+    prompt_template = "prompt_templates" + "/"+ task + ".txt"
 
     file = open(prompt_template, "r")
     prompt = file.read()
@@ -55,6 +55,6 @@ def generate_prompt(task, person, world):
     return prompt
 
 def generate_response(prompt, max_new_tokens=50):
-    response = pipe(prompt, max_new_tokens)
+    response = pipe(prompt, max_new_tokens=max_new_tokens)
 
     return response

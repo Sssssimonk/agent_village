@@ -9,7 +9,7 @@ if __name__ == '__main__':
     world = World()
     
     
-    print(world.residents)
+    print(generate_prompt("daily_plan", world.residents["Tom"], world))
 #     while True:
 #         count = input("Enter iteration to run: ")
 #         while count > 0:

@@ -4,7 +4,7 @@ from person import Person
 
 class World:
     def __init__(self) -> None:
-
+        self.town_areas = None
         self.world_graph = self.initialize_world()
         self.residents = {}
         self.cur_time = 8
@@ -19,6 +19,7 @@ class World:
             data = json.load(json_file)
             town_areas = data["town_areas"]
 
+        self.town_areas = town_areas
         world_graph = nx.Graph()
         for town_area in town_areas.keys():
             world_graph.add_node(town_area)
@@ -48,3 +49,9 @@ class World:
                                              self)
 
         print("Agent Initialized")
+        
+        
+        
+if __name__ == "__main__":
+    world = World()
+    nx.draw(world.world_graph, with_labels=True)
