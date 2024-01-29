@@ -2,7 +2,12 @@ from person import *
 from world import *
 
 def run_simulation():
-    world = World()
+    world = World() # world and agent will be initialized
+    for resident in world.residents:
+        world.residents[resident].plan() # start first daily plan for the person 
+
+    # we need a log system to load existing file and continue the simulation  use pickle?
+
     
 
 if __name__ == '__main__':
