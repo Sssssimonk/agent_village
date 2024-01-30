@@ -6,15 +6,19 @@ def run_simulation():
     for resident in world.residents:
         world.residents[resident].plan() # start first daily plan for the person 
 
-    # we need a log system to load existing file and continue the simulation  use pickle or json?
+    # test what tom will do 
+    tom = world.residents['Tom']
+    tom.action()
+
+    
+
+    
 
     
 
 if __name__ == '__main__':
-    world = World()
-    
-    
-    print(generate_prompt("daily_plan", world.residents["Tom"], world))
+    run_simulation()
+
 #     while True:
 #         count = input("Enter iteration to run: ")
 #         while count > 0:
