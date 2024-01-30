@@ -6,7 +6,7 @@ def run_simulation():
     for resident in world.residents:
         world.residents[resident].plan() # start first daily plan for the person 
 
-    # we need a log system to load existing file and continue the simulation  use pickle?
+    # we need a log system to load existing file and continue the simulation  use pickle or json?
 
     
 
