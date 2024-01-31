@@ -20,8 +20,9 @@ class Person:
     def plan(self):
         # create daily plan whenever the new day starts
         prompt = generate_prompt("daily_plan", self, self.world)
-        response = generate_response(prompt, max_new_tokens=300, min_new_tokens=100)[0]['generated_text']
-        
+        response = generate_response(prompt, 
+                                     max_new_tokens=300, 
+                                     min_new_tokens=100)[0]['generated_text']
         
         daily_plan = response.split("<Output>:")[1]     # delete prompt template provided
         
@@ -29,7 +30,6 @@ class Person:
         self.daily_plan = daily_plan
         self.memory.append(daily_plan)
         
-
         print("The daily plan for " + self.name + " is : " + self.daily_plan)
 
     def retrieve(self):
