@@ -20,26 +20,40 @@ class Person:
     def plan(self):
         # create daily plan whenever the new day starts
         prompt = generate_prompt("daily_plan", self, self.world)
-        response = generate_response(prompt)
+        response = generate_response(prompt, max_new_tokens=300, min_new_tokens=100)[0]['generated_text']
+        
+        
+        daily_plan = response.split("<Output>:")[1]     # delete prompt template provided
+        
+        # update memory
+        self.daily_plan = daily_plan
+        self.memory.append(daily_plan)
+        
 
-        self.daily_plan = response
-
-        print("The daily plan for " + self.name + "is : " + self.daily_plan)
+        print("The daily plan for " + self.name + " is : " + self.daily_plan)
 
     def retrieve(self):
         pass 
 
     def reflect(self):
+        # TODO: process memory, remove anything useless
         pass 
 
     def action(self, task="move"):
 
         if task == "move":
             prompt = generate_prompt("action", self, self.world)
-            response = generate_response(prompt)
+            response = generate_response(prompt, max_new_tokens=80, min_new_tokens=30)[0]['generated_text']
+            action = response.split("<Output>:")[1]  # delete prompt template provided
+            
+            self.memory.append("Current Time is " + str(self.world.cur_time) + action)
 
-            return response
+            print(action)
+            # print("The action for " + self.name + "is : " + response)
+            #return response
         
+            #TODO: adjust generation config, make the output more stable 
+            #TODO: enable agent to move to another space
         if task == "chat":
             #TODO
             pass

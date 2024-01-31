@@ -57,8 +57,8 @@ def generate_prompt(task, person, world):
                                world.cur_time)
     return prompt
 
-def generate_response(prompt, max_new_tokens=50):
+def generate_response(prompt, max_new_tokens=100, min_new_tokens=50):
     # given the prompt provided, create output from the pipeline
-    response = pipe(prompt, max_new_tokens=max_new_tokens)
+    response = pipe(prompt, max_new_tokens=max_new_tokens, min_new_tokens=min_new_tokens)
 
     return response
