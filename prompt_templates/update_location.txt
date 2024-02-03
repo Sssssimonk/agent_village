@@ -1,0 +1,22 @@
+<Information Given>
+
+Name: {}
+Discription: {}
+Personality: {}
+Town Areas: {}
+Current Location: {}
+Current Plan: {}
+Current Time : {}
+Action Decieed : {}
+
+<Instruction>: Based on current plan and action decided, Decided an area in town areas to go to.
+
+<Example>:
+
+Current action: go to school
+Objects available: {Town Square, Police Office, School}
+Pick ONE most relevant object from the objects available: School
+
+<Output>:
+
+Pick ONE most relevant object from the objects available: 

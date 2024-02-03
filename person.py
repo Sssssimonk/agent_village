@@ -22,7 +22,7 @@ class Person:
         prompt = generate_prompt("daily_plan", self, self.world)
         response = generate_response(prompt, 
                                      max_new_tokens=300, 
-                                     min_new_tokens=100)[0]['generated_text']
+                                     min_new_tokens=100)
         
         daily_plan = response.split("<Output>:")[1]     # delete prompt template provided
         
@@ -43,14 +43,24 @@ class Person:
 
         if task == "move":
             prompt = generate_prompt("action", self, self.world)
-            response = generate_response(prompt, max_new_tokens=80, min_new_tokens=30)[0]['generated_text']
+            response = generate_response(prompt, max_new_tokens=80, min_new_tokens=30)
             action = response.split("<Output>:")[1]  # delete prompt template provided
             
             self.memory.append("Current Time is " + str(self.world.cur_time) + action)
 
             print(action)
-            # print("The action for " + self.name + "is : " + response)
-            #return response
+            # ========== update location ========== #
+
+            prompt = generate_prompt("change_location", self, self.world)
+            response = generate_response(prompt, max_new_tokens=50, action=action)
+
+            location = response.split(":")[-1].strip()      # retrieve the location generated
+            while location not in self.world.town_areas: 
+                prompt = generate_prompt("change_location", self, self.world)
+                response = generate_response(prompt, max_new_tokens=50, action=action)
+                location = response.split(":")[-1].strip()
+
+            self.location = location
         
             #TODO: adjust generation config, make the output more stable 
             #TODO: enable agent to move to another space
