@@ -2,6 +2,7 @@ from transformers import pipeline
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import torch
 from transformers import BitsAndBytesConfig
+from sentence_transformers import SentenceTransformer, util
 
 
 
@@ -30,6 +31,7 @@ pipe = pipeline(task="text-generation",
                 #PretrainedConfig = xxx
                 )
 
+sentence_model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
 print("hf_model_initialized")
 
 
@@ -56,15 +58,19 @@ def generate_prompt(task, person, world, **kwargs):
                                person.location,
                                person.daily_plan,
                                world.cur_time)
-    if task == "change_location":
+    if task == "update_location":
         prompt = prompt.format(person.name,
-                               person.description,
-                               person.personality,
-                               world.town_areas.keys(),
-                               person.location,
+                               person.description, 
                                person.daily_plan,
                                world.cur_time,
-                               kwargs['action'])
+                               person.location,
+                               kwargs['action'], 
+                               world.town_areas.keys(),
+                               )
+
+    if task == "summarize_action":
+        prompt = prompt.format(person.name,
+                               kwargs['memory'])
     return prompt
 
 def generate_response(prompt, max_new_tokens=100, min_new_tokens=50):
@@ -74,3 +80,9 @@ def generate_response(prompt, max_new_tokens=100, min_new_tokens=50):
                     min_new_tokens=min_new_tokens)[0]['generated_text']
 
     return response
+
+def calculate_sentence_similarity(daily_plan, summarize_action):
+    embedding_1= sentence_model.encode(daily_plan, convert_to_tensor=True)
+    embedding_2 = sentence_model.encode(summarize_action, convert_to_tensor=True)
+    similarity_score = util.pytorch_cos_sim(embedding_1, embedding_2).tolist()[0][0]
+    return similarity_score

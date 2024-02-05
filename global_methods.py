@@ -18,7 +18,7 @@ def generate_simulation_filename():
     return f"simulation_{new_number}.pkl"
 
 def select_simulation_file():
-    existing_files = glob.glob("simulation_*.pkl")
+    existing_files = glob.glob("simulation_*.pkl") #a list of .pkl file
     if not existing_files:
         print("No saved simulation found.")
         return None
@@ -26,6 +26,7 @@ def select_simulation_file():
     existing_files.sort(key=lambda x: int(re.search(r"simulation_(\d+)\.pkl", x).group(1)))
     
     while True:
+        print("Available files to load: ")
         for i, file in enumerate(existing_files, 1):
             print(f"{i}. {file}")
         choice = input("Select a simulation to load (number), or type 'exit' to start a new simulation: ")
