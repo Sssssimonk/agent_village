@@ -53,20 +53,20 @@ class Person:
             print(action)
             # ========== update location ========== #
 
-            prompt = generate_prompt("change_location", self, self.world)
-            response = generate_response(prompt, 
-                                         max_new_tokens=50, 
-                                         action=action)
+#             prompt = generate_prompt("change_location", self, self.world)
+#             response = generate_response(prompt, 
+#                                          max_new_tokens=50, 
+#                                          action=action)
 
-            location = response.split(":")[-1].strip()      # retrieve the location generated
-            while location not in self.world.town_areas: 
-                prompt = generate_prompt("change_location", self, self.world)
-                response = generate_response(prompt, 
-                                             max_new_tokens=50, 
-                                             action=action)
-                location = response.split(":")[-1].strip()
+#             location = response.split(":")[-1].strip()      # retrieve the location generated
+#             while location not in self.world.town_areas: 
+#                 prompt = generate_prompt("change_location", self, self.world)
+#                 response = generate_response(prompt, 
+#                                              max_new_tokens=50, 
+#                                              action=action)
+#                 location = response.split(":")[-1].strip()
 
-            self.location = location
+#             self.location = location
         
             #TODO: adjust generation config, make the output more stable 
             #TODO: enable agent to move to another space

@@ -7,11 +7,13 @@ def generate_simulation_filename():
     existing_files = glob.glob("simulation_*.pkl")
     max_number = 0
     for file in existing_files:
-        # Extracting the number from filenames like 'simulation_1.pkl'
+        # Extracting the number from filenames like 'simulation_1.pkl' 
         number = int(file.replace("simulation_", "").replace(".pkl", ""))
+        # find the newest simulation number
         if number > max_number:
             max_number = number
 
+    # create latest pickle file name
     new_number = max_number + 1
     return f"simulation_{new_number}.pkl"
 
