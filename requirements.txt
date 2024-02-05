@@ -1,0 +1,6 @@
+networkx
+transformers
+sentencepiece
+torch
+sentence-transformers
+bitsandbytes
