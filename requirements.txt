@@ -4,3 +4,4 @@ sentencepiece
 torch
 sentence-transformers
 bitsandbytes
+llama-index
