@@ -32,9 +32,9 @@ def run_simulation(hours_to_run=16, continue_simulation = False):
         world.cur_time += 1
         save_simulation_state(world, filename) # save state at the end of each hour
 
-        if world.cur_time == 24: # End of a day
-            for resident in world.residents:
-                world.residents[resident].reflect()
+        # if world.cur_time == 24: # End of a day
+        #     for resident in world.residents:
+        #         world.residents[resident].reflect()
            
     
     return world

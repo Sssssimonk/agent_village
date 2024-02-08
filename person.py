@@ -8,7 +8,6 @@ class Person:
         self.memory = []
         self.location = "Town Square"
         self.personality = personality
-        # hard code self.world?
         self.world = world
         self.daily_plan = None
 
@@ -51,10 +50,6 @@ class Person:
 
         print("The semantic memory similarity for " + self.name + " is " + str(score))
 
-
-        
-
-        
 
     def action(self, task="move"):
 
