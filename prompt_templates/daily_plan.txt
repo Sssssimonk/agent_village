@@ -6,7 +6,7 @@ Personality: {}
 Town Areas: {}
 Current Location: {}
 
-<Instruction>: Based on the information given, create a 24 hour daily plan for this person. Use first-person perspective
+<Instruction>: Based on the information given, create a 24 hour daily plan for this person.Include schdule for all 24 hours. Use first-person perspective
 
 <Output format>:
 
@@ -26,7 +26,7 @@ Current Location: {}
 21 pm:
 22 pm:
 23 pm:
-24 pm :
+24 pm:
 
 
 <Output>:

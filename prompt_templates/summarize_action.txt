@@ -1,0 +1,9 @@
+<Information Given>
+
+Name: {}
+Action done today: {}
+
+<Instruction>: Based on today's current actions, make a summary
+
+<Output>:
+
