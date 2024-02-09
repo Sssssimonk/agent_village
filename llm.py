@@ -2,7 +2,6 @@ from transformers import pipeline
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import torch
 from transformers import BitsAndBytesConfig
-from sentence_transformers import SentenceTransformer, util
 
 
 
@@ -15,8 +14,9 @@ bnb_config = BitsAndBytesConfig(load_in_4bit=True,
 
 # use llama2 model in transfomers
 access_token = "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"
-model_id = "lmsys/vicuna-7b-v1.5"
-# model_id = "meta-llama/Llama-2-7b-chat-hf"
+model_id = "meta-llama/Llama-2-7b-chat-hf"
+# model_id = "lmsys/vicuna-7b-v1.5"
+# model_id = "mistralai/Mistral-7B-v0.1"
 tokenizer = AutoTokenizer.from_pretrained(model_id, 
                                           token=access_token)
 model = AutoModelForCausalLM.from_pretrained(model_id,
@@ -31,11 +31,10 @@ pipe = pipeline(task="text-generation",
                 #PretrainedConfig = xxx
                 )
 
-sentence_model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
 print("hf_model_initialized")
 
 
-def generate_prompt(task, person, world, **kwargs):
+def generate_prompt(task, person, world):
     # from prompt file task.txt, read the prompt template and then out put a str prompt.
     prompt_template = "prompt_templates" + "/"+ task + ".txt"
 
@@ -45,44 +44,68 @@ def generate_prompt(task, person, world, **kwargs):
 
     if task == "daily_plan":
         prompt = prompt.format(person.name, 
-                            person.description, 
-                            person.personality, 
-                            world.town_areas.keys(), 
-                            person.location)
+                               person.description, 
+                               person.personality
+                              )
+        
+    if task == "place":
+        prompt = prompt.format(person.name, 
+                               person.description, 
+                               ", ".join(list(world.town_areas.keys())),
+                               "{} plan to {}".format(person.name.split(" ")[0], 
+                                                      person.plan_lst["{}:00".format(world.cur_time)]),
+                               world.cur_time
+                              )
     
     if task == "action":
         prompt = prompt.format(person.name,
                                person.description,
-                               person.personality,
                                world.town_areas.keys(),
                                person.location,
-                               person.daily_plan,
+                               person.plan_lst["{}:00".format(world.cur_time)],
                                world.cur_time)
-    if task == "update_location":
+    if task == "if_chat":
+        target_name = []
+        target_description = []
+        target_action = []
+        for i in person.meet:
+            target_name.append(person.world.residents[i].name)
+            target_description.append(person.world.residents[i].description)
+            target_action.append(person.world.residents[i].memory[-1].replace("I will",
+                                                                              "{} will".format(person.world.residents[i].name)
+                                                                             ))
         prompt = prompt.format(person.name,
-                               person.description, 
-                               person.daily_plan,
-                               world.cur_time,
+                               person.description,
                                person.location,
-                               kwargs['action'], 
-                               world.town_areas.keys(),
+                               world.cur_time,
+                               person.memory[-1],
+                               ", ".join(target_name),
+                               " ".join(target_description),
+                               " ".join(target_action)
                                )
-
-    if task == "summarize_action":
+    if task == "chat":
+        target_name = []
+        target_description = []
+        target_action = []
+        for i in person.meet:
+            target_name.append(person.world.residents[i].name)
+            target_description.append(person.world.residents[i].description)
+            target_action.append(person.world.residents[i].memory[-1].replace("I will",
+                                                                              "{} will".format(person.world.residents[i].name)
+                                                                             ))
         prompt = prompt.format(person.name,
-                               kwargs['memory'])
+                               person.description,
+                               person.location,
+                               world.cur_time,
+                               person.memory[-1],
+                               ", ".join(target_name),
+                               " ".join(target_description),
+                               " ".join(target_action)
+                               )
     return prompt
 
 def generate_response(prompt, max_new_tokens=100, min_new_tokens=50):
     # given the prompt provided, create output from the pipeline
-    response = pipe(prompt, 
-                    max_new_tokens=max_new_tokens, 
-                    min_new_tokens=min_new_tokens)[0]['generated_text']
+    response = pipe(prompt, max_new_tokens=max_new_tokens, min_new_tokens=min_new_tokens)
 
     return response
-
-def calculate_sentence_similarity(daily_plan, summarize_action):
-    embedding_1= sentence_model.encode(daily_plan, convert_to_tensor=True)
-    embedding_2 = sentence_model.encode(summarize_action, convert_to_tensor=True)
-    similarity_score = util.pytorch_cos_sim(embedding_1, embedding_2).tolist()[0][0]
-    return similarity_score

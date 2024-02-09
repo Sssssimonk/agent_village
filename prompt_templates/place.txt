@@ -1,0 +1,15 @@
+<Information Given>
+
+Agent: {}
+Discription: {}
+Town Areas: {}
+Current Plan: {}
+Current Time: {}
+
+<Instruction>: Based on current <Information Given>, which one is the ONLY most suitable for Agent plan to Current Plan from the fellowing Town Areas? Be brief, and use at most 3 words and answer from your perspective.
+
+<Output format>:
+
+Coffee Shop, School, etc.
+
+<Output>:

@@ -3,30 +3,27 @@
 Name: {}
 Discription: {}
 Personality: {}
-Town Areas: {}
-Current Location: {}
 
-<Instruction>: Based on the information given, create a 24 hour daily plan for this person.Include schdule for all 24 hours. Use first-person perspective
+
+<Instruction>: Based on the information given, create a 24 hour daily plan for this person. Use first-person perspective
 
 <Output format>:
 
-8 am : 
-9 am :
-10 am:
-11 am:
-12 pm:
-13 pm:
-14 pm:
-15 pm:
-16 pm:
-17 pm:
-18 pm:
-19 pm:
-20 pm:
-21 pm:
-22 pm:
-23 pm:
-24 pm:
-
+8:00 -   
+9:00 - 
+10:00 - 
+11:00 - 
+12:00 - 
+13:00 - 
+14:00 - 
+15:00 - 
+16:00 - 
+17:00 - 
+18:00 - 
+19:00 - 
+20:00 - 
+21:00 - 
+22:00 - 
+23:00 - 
 
 <Output>:

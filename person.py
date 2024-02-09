@@ -1,4 +1,5 @@
-from llm import generate_prompt, generate_response, calculate_sentence_similarity
+from llm import generate_prompt, generate_response
+import numpy as np
 
 class Person:
 
@@ -8,92 +9,99 @@ class Person:
         self.memory = []
         self.location = "Town Square"
         self.personality = personality
+        # hard code self.world?
         self.world = world
         self.daily_plan = None
-
+        self.plan_lst = {}
+        self.meet = []
 
 
     def perceive(self, world):
+        # perceive current environment and memorize into memory
         pass 
 
     def plan(self):
-        """ create daily plan whenever the new day starts """
+        # create daily plan whenever the new day starts
         prompt = generate_prompt("daily_plan", self, self.world)
-        response = generate_response(prompt, 
-                                     max_new_tokens=300, 
-                                     min_new_tokens=100)
+        response = generate_response(prompt, max_new_tokens=500, min_new_tokens=100)[0]['generated_text']
+        
         
         daily_plan = response.split("<Output>:")[1]     # delete prompt template provided
         
         # update memory
         self.daily_plan = daily_plan
-        self.memory.append(daily_plan)
+#         print(self.daily_plan)
         
-        print("The daily plan for " + self.name + " is : " + self.daily_plan)
+        for plan_value in self.daily_plan.split('\n'):
+            if " - " in plan_value:
+                key = plan_value.split(" - ")[0]
+                value = plan_value.split(" - ")[1].lower()
+                self.plan_lst[key] = value
+                
+                if "23:00 -" in plan_value:
+                    break
+        
+
+#         print("The daily plan for " + self.name + " is : " + self.daily_plan)
 
     def retrieve(self):
         pass 
 
     def reflect(self):
-        """summarize the daily actions and calculate semantic simlarity between daily plan and summarized actions"""
-        actions_done = " ".join(self.memory[-16:])      # retrieve today's memory and type cast into a string
-        prompt = generate_prompt("summarize_action", self, self.world, memory=actions_done)
-        response = generate_response(prompt, max_new_tokens=500, min_new_tokens=200)
-        summary = response.split("<Output>:")[1]
-
-        print("Summarizing today's memory")
-        print(summary)
-
-        # ======== calculate semantic similarity ======= #
-        daily_plan = self.memory[self.world.days_passed * 16]
-        score = calculate_sentence_similarity(daily_plan, summary)
-
-        print("The semantic memory similarity for " + self.name + " is " + str(score))
-
+        # TODO: process memory, remove anything useless
+        pass 
 
     def action(self, task="move"):
 
         if task == "move":
             prompt = generate_prompt("action", self, self.world)
-            response = generate_response(prompt, 
-                                         max_new_tokens=80, 
-                                         min_new_tokens=30)
+            response = generate_response(prompt, max_new_tokens=500, min_new_tokens=10)[0]['generated_text']
             action = response.split("<Output>:")[1]  # delete prompt template provided
+            for i in action.split('\n'):
+                if "I will " in i:
+                    action = i
+                    break
+            self.memory.append("At {}:00, I am {} on {}. {}".format(self.world.cur_time,
+                                                                    self.name,
+                                                                    self.location,
+                                                                    action
+                                                                   ))
             
-            self.memory.append("The Current Time is " + str(self.world.cur_time) + " :00 " + action)
-
-            print("The Current Time is " + str(self.world.cur_time) + " :00 " + action)
-            # ========== update location ========== #
-            #TODO: Output not working, need improvements
-            # prompt = generate_prompt("update_location", 
-            #                          self, 
-            #                          self.world,
-            #                          action=action)
-
-            
-            # response = generate_response(prompt, 
-            #                              max_new_tokens=20)
-
-            # print(response)
-            # location = response.split(":")[-1].strip()      # retrieve the location generated
-            # print("The generated loaction to move is : " + location)
-            # while location not in self.world.town_areas: 
-            #     prompt = generate_prompt("update_location", self, self.world, action=action)
-            #     response = generate_response(prompt, max_new_tokens=20)
-            #     location = response.split(":")[-1].strip()
-            #     print("Location not working, genreated a new location : " + location)
-
-            # self.location = location
+            # print("The action for " + self.name + "is : " + response)
+            #return response
         
             #TODO: adjust generation config, make the output more stable 
-
-        if task == "chat":
-            #TODO
-            pass
+            #TODO: enable agent to move to another space
 
         if task == "some other action":
             #TODO
             pass
+        
+        if task == "place":
+            prompt = generate_prompt("place", self, self.world)
+            response = generate_response(prompt, max_new_tokens=10, min_new_tokens=1)[0]['generated_text']
+            place = response.split("<Output>:")[1]
+#             print(place)
+            for building in self.world.town_areas.keys():
+                if building.lower() in place.lower():
+                    self.location = building
+                    break
+            
+        if task == "chat":
+            prompt = generate_prompt("chat", self, self.world)
+            response = generate_response(prompt, max_new_tokens=500, min_new_tokens=100)[0]['generated_text']
+            chat = response.split("<Output>:")[1]
+            return chat.split('\n\n')[0]
+        
+        if task == "if_chat":
+            prompt = generate_prompt("if_chat", self, self.world)
+            response = generate_response(prompt, max_new_tokens=2, min_new_tokens=1)[0]['generated_text']
+            check_chat = response.split("<Output>:")[1]
+
+            check_chat = np.float64(check_chat) if any(i.isdigit() for i in check_chat) else 0
+            if check_chat > 5:
+                return True
+            return False
 
 # ===================================== Agent action with RAG ======================================#
 
