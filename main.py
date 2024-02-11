@@ -3,6 +3,7 @@ from world import *
 from global_methods import *
 import numpy as np
 
+
 days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday","Saturday", "Sunday"]
 weather = ["Sunny", "Rain", "Cloudy"]
 
