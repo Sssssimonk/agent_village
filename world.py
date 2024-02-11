@@ -8,7 +8,9 @@ class World:
         self.world_graph = self.initialize_world()
         self.residents = {}
         self.cur_time = 8
-        self.days_passed = 0
+        self.date = -1
+        self.weather = -1
+        
         self.initialize_agents()
         
     

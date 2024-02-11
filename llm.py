@@ -45,7 +45,9 @@ def generate_prompt(task, person, world):
     if task == "daily_plan":
         prompt = prompt.format(person.name, 
                                person.description, 
-                               person.personality
+                               person.personality,
+                               world.date,
+                               world.weather
                               )
         
     if task == "place":
@@ -58,11 +60,19 @@ def generate_prompt(task, person, world):
                               )
     
     if task == "action":
+        before_action = ""
+        if world.cur_time == 8:
+            before_action = "I just wake up!"
+        else:
+            if len(person.memory) <= 5:
+                before_action = "\n".join(person.memory)
+            else:
+                before_action = "\n".join(person.memory[-5:])
         prompt = prompt.format(person.name,
                                person.description,
-                               world.town_areas.keys(),
                                person.location,
                                person.plan_lst["{}:00".format(world.cur_time)],
+#                                before_action,
                                world.cur_time)
     if task == "if_chat":
         target_name = []
@@ -81,7 +91,9 @@ def generate_prompt(task, person, world):
                                person.memory[-1],
                                ", ".join(target_name),
                                " ".join(target_description),
-                               " ".join(target_action)
+                               " ".join(target_action),
+                               world.date,
+                               world.weather
                                )
     if task == "chat":
         target_name = []
@@ -100,7 +112,17 @@ def generate_prompt(task, person, world):
                                person.memory[-1],
                                ", ".join(target_name),
                                " ".join(target_description),
-                               " ".join(target_action)
+                               " ".join(target_action),
+                               world.date,
+                               world.weather
+                               )
+    if task == "summary_memory":
+        prompt = prompt.format(person.name,
+                               person.description,
+                               "\n".join(person.memory),
+                               person.daily_plan,
+                               world.date,
+                               world.weather
                                )
     return prompt
 

@@ -1,9 +1,16 @@
 <Information Given>
 
-Name: {}
-Action done today: {}
+Agents: {}
+Discription: {}
+Memory: {}
+Plan: {}
+Date: {}
+Weather: {}
 
-<Instruction>: Based on today's current actions, make a summary
+<Instruction>: The day has ended. According to the Information Given, what did this Agents do today? Please summarize it in one sentence. Use first-person perspective
+
+<Output format>:
+
+I did xxx
 
 <Output>:
-

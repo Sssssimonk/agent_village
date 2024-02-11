@@ -1,21 +1,17 @@
 <Information Given>
 
-Agents: {}
+Name: {}
 Discription: {}
 Current Location: {}
-Current Time : {}
-Current Action: {}
-Target Agents: {}
-Target Discription: {}
-Target Action: {}
+Current Plan: {}
 
-<Instruction>: These people meet on Current Location, based on current Information Given, what will Agent talk with target Agent? Show their conversion.
+Current Time : {}
+
+<Instruction>: Based on Current Plan, decide what to do or where to go for the next hour. Use first-person perspective
 
 <Output format>:
 
-Agents said:
-Target Agents 1 said:
-Target Agents 2 said:
-...
+I will xxx
 
 <Output>:
+

@@ -3,9 +3,11 @@
 Name: {}
 Discription: {}
 Personality: {}
+Date: {}
+Weather: {}
 
 
-<Instruction>: Based on the information given, create a 24 hour daily plan for this person. Use first-person perspective
+<Instruction>: Based on the Information Given, create a 24 hour daily plan for this person. Use first-person perspective
 
 <Output format>:
 

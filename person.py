@@ -14,6 +14,7 @@ class Person:
         self.daily_plan = None
         self.plan_lst = {}
         self.meet = []
+        self.summary = []
 
 
     def perceive(self, world):
@@ -34,18 +35,31 @@ class Person:
         
         for plan_value in self.daily_plan.split('\n'):
             if " - " in plan_value:
-                key = plan_value.split(" - ")[0]
+                key = plan_value.split(":")[0]
                 value = plan_value.split(" - ")[1].lower()
-                self.plan_lst[key] = value
+                self.plan_lst["{}:00".format(key)] = value
                 
-                if "23:00 -" in plan_value:
+                if "23:00" in self.plan_lst.keys():
                     break
         
 
 #         print("The daily plan for " + self.name + " is : " + self.daily_plan)
-
+    
     def retrieve(self):
-        pass 
+        prompt = generate_prompt("summary_memory", self, self.world)
+        response = generate_response(prompt, max_new_tokens=200, min_new_tokens=50)[0]['generated_text']
+        summary = response.split("<Output>:")[1].split('\n')
+        for i in summary:
+            if len(i) != 0:
+                self.summary.append(i)
+                break
+        
+        self.daily_plan = None
+        self.plan_lst = {}
+        self.meet = []
+        self.memory = []
+        
+        
 
     def reflect(self):
         # TODO: process memory, remove anything useless

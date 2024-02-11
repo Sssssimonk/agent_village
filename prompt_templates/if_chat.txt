@@ -8,6 +8,8 @@ Current Action: {}
 Target Agents: {}
 Target Discription: {}
 Target Action: {}
+Date: {}
+Weather: {}
 
 <Instruction>: These people meet on Current Location, based on current Information Given, what is the probability of dialogue between Agent and target Agent?
 
