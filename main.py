@@ -2,6 +2,7 @@ from person import *
 from world import *
 from global_methods import *
 import numpy as np
+import sys
 
 
 days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday","Saturday", "Sunday"]
@@ -109,7 +110,11 @@ def run_simulation(hours_to_run=16, continue_simulation = False):
     
 
 if __name__ == '__main__':
-    run_simulation()
+
+    if len(sys.argv) > 1:
+        run_simulation(int(sys.argv[1]), bool(sys.argv[2]))
+    else:
+        run_simulation(int(sys.argv[1]))
 
 #     while True:
 #         count = input("Enter iteration to run: ")
