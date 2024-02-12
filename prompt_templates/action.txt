@@ -2,13 +2,12 @@
 
 Name: {}
 Discription: {}
-Personality: {}
-Town Areas: {}
 Current Location: {}
 Current Plan: {}
+
 Current Time : {}
 
-<Instruction>: Based on current base plan, decide what to do or where to go for the next hour. Use first-person perspective
+<Instruction>: Based on Current Plan, decide what to do or where to go for the next hour. Use first-person perspective
 
 <Output format>:
 

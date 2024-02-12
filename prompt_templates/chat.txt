@@ -1,3 +1,17 @@
-TODO
+<Information Given>
 
-chat prompt
+Name: {}
+Discription: {}
+Current Location: {}
+Current Plan: {}
+
+Current Time : {}
+
+<Instruction>: Based on Current Plan, decide what to do or where to go for the next hour. Use first-person perspective
+
+<Output format>:
+
+I will xxx
+
+<Output>:
+
