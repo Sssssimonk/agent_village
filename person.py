@@ -1,16 +1,17 @@
-from llm import generate_prompt, generate_response
+from llm import generate_index, generate_prompt, generate_response, load_data
 
 class Person:
 
     def __init__(self, name, description, personality, world) -> None:
         self.name = name
         self.description = description
-        self.memory = []
+        # self.memory = []
         self.location = "Town Square"
         self.personality = personality
         # hard code self.world?
         self.world = world
         self.daily_plan = None
+        self.index = None
 
 
     def perceive(self, world):
@@ -19,7 +20,9 @@ class Person:
 
     def plan(self):
         # create daily plan whenever the new day starts
+
         prompt = generate_prompt("daily_plan", self, self.world)
+            
         response = generate_response(prompt, max_new_tokens=300, min_new_tokens=100)[0]['generated_text']
         
         
@@ -27,8 +30,8 @@ class Person:
         
         # update memory
         self.daily_plan = daily_plan
-        self.memory.append(daily_plan)
-        
+        # self.memory.append(daily_plan)
+        load_data(self.index, self.daily_plan)
 
         print("The daily plan for " + self.name + " is : " + self.daily_plan)
 
@@ -42,11 +45,12 @@ class Person:
     def action(self, task="move"):
 
         if task == "move":
-            prompt = generate_prompt("action", self, self.world)
+            prompt = generate_prompt("action", self, self.world) 
             response = generate_response(prompt, max_new_tokens=80, min_new_tokens=30)[0]['generated_text']
             action = response.split("<Output>:")[1]  # delete prompt template provided
             
-            self.memory.append("Current Time is " + str(self.world.cur_time) + action)
+            # self.memory.append("Current Time is " + str(self.world.cur_time) + action)
+            load_data(self.index, "Current Time is " + str(self.world.cur_time) + action)
 
             print(action)
             # print("The action for " + self.name + "is : " + response)

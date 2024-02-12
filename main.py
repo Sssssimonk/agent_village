@@ -1,13 +1,23 @@
+from llm import load_data
 from person import *
 from world import *
 from global_methods import *
 
-def run_simulation(hours_to_run=16, continue_simulation = False):
+def run_simulation(hours_to_run=16, continue_simulation = False, RAG = False):
     if not continue_simulation:
         delete_saved_state() #Delete existing saved state when starting new simulation
         world = World() #initialize world and agents
         for resident in world.residents:
+            world.residents[resident].index = generate_index()
+
+        for resident in world.residents:
+            load_data(world.residents[resident].index, world.residents[resident].name)
+            load_data(world.residents[resident].index, world.residents[resident].description)
+            load_data(world.residents[resident].index, world.residents[resident].personality)
+            load_data(world.residents[resident].index, world.residents[resident].location)
+            load_data(world.residents[resident].index, world.residents[resident].world)
             world.residents[resident].plan() # start first daily plan for the person 
+            # initialize index
     else:
         world = load_simulation_state() # Attempt to load the saved state
         if world is None:

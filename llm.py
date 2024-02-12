@@ -70,10 +70,14 @@ pipe = pipeline(task="text-generation",
 print("hf_RAG_model_initialized")
 
 #put world_setting and daily plan into initialization
-def generate_index(text):
-    documents = StringIterableReader().load_data(texts=[text])
+def generate_index():
+    documents = SimpleDirectoryReader("/prompt_templates/daily_plan.txt").load_data()
     index = VectorStoreIndex.from_documents(documents, service_context=service_context)
     return index
+
+def load_data(index, text):
+    documents = StringIterableReader().load_data(texts=[text])
+    index.insert(document = documents)
 
 def generate_prompt(task, person, world):
     # from prompt file task.txt, read the prompt template and then out put a str prompt.
