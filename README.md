@@ -48,7 +48,7 @@ Follow these steps to run `main.py`:
    **Example**
    - To run the simulation for 3 hours without continuing a previous session:
    ```bash
-   python main.py 3 False
+   python main.py 3
    ```
    - To continue a previous simulation for an additional 5 hours, where you will be prompted to select an existing simulation state:
    ```bash
