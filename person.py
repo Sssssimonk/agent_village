@@ -1,5 +1,6 @@
 from llm import generate_prompt, generate_response
 import numpy as np
+import re
 
 class Person:
 
@@ -20,6 +21,11 @@ class Person:
     def perceive(self, world):
         # perceive current environment and memorize into memory
         pass 
+    
+    def other_meet(self, agents):
+        meet_agent = [self.world.residents[index].name for index in agents]
+        meet_agent.remove(self.name)
+        self.memory[-1] += " I see {} on {}.".format(", ".join(meet_agent), self.location)
 
     def plan(self):
         # create daily plan whenever the new day starts
@@ -105,17 +111,19 @@ class Person:
             prompt = generate_prompt("chat", self, self.world)
             response = generate_response(prompt, max_new_tokens=500, min_new_tokens=100)[0]['generated_text']
             chat = response.split("<Output>:")[1]
-            return chat.split('\n\n')[0]
+            chat_result = chat.split('\n<')[0].replace('\n\n', '\n')
+            return re.sub(r'\n\n+', '', chat_result)
+            
         
         if task == "if_chat":
             prompt = generate_prompt("if_chat", self, self.world)
-            response = generate_response(prompt, max_new_tokens=2, min_new_tokens=1)[0]['generated_text']
+            response = generate_response(prompt, max_new_tokens=5, min_new_tokens=1)[0]['generated_text']
             check_chat = response.split("<Output>:")[1]
-
             check_chat = np.float64(check_chat) if any(i.isdigit() for i in check_chat) else 0
-            if check_chat > 5:
+            if check_chat >= 7:
                 return True
             return False
+        
 
 # ===================================== Agent action with RAG ======================================#
 
