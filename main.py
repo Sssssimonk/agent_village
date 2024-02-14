@@ -25,8 +25,8 @@ def run_simulation(hours_to_run=16, continue_simulation = False):
             
             for resident in world.residents:
                 world.residents[resident].plan()
-                print(world.residents[resident].plan_lst)
-                print(world.residents[resident].daily_plan)
+#                 print(world.residents[resident].plan_lst)
+#                 print(world.residents[resident].daily_plan)
             world.rest_date()    
             print("****************************")
             print("Today is {}, it's {}.\n".format(world.date, world.weather))    
