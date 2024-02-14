@@ -3,8 +3,10 @@ import json
 from person import Person
 import numpy as np
 
+from llama_index import Document, VectorStoreIndex
+
 class World:
-    def __init__(self) -> None:
+    def __init__(self):
         self.town_areas = None
         self.world_graph = self.initialize_world()
         self.residents = {}
@@ -18,7 +20,7 @@ class World:
     
 
 
-    def initialize_world(self) -> nx.Graph:
+    def initialize_world(self):
         # initialize town areas and world graph
         with open("world_settings.json", "r") as json_file:
             data = json.load(json_file)
@@ -42,19 +44,33 @@ class World:
 
         return world_graph
     
-    def initialize_agents(self) -> None:
+    def initialize_agents(self, rag=False):
         # instantiate person and add them to the self.residents
         with open("world_settings.json", "r") as json_file:
             data = json.load(json_file)
             residents = data["town_residents"]
 
-        for resident in residents.keys():
-            self.residents[resident] = Person(residents[resident]["Name"], 
-                                             residents[resident]["Description"], 
-                                             residents[resident]["Personality"],
-                                             self)
+        if rag == True:
+            for resident in resident.keys():
+                self.residents[resident] = Person(residents[resident]["Name"], 
+                                                residents[resident]["Description"], 
+                                                residents[resident]["Personality"],
+                                                self)
+                
+                initial_memory = [residents[resident]["Name"], residents[resident]["Description"]]
+                documents = [Document(text=t) for t in initial_memory]
+                self.residents[resident].initialize_index()
 
-        print("Agent Initialized")
+                
+            print("Agent Initialized with RAG")
+        else:
+            for resident in residents.keys():
+                self.residents[resident] = Person(residents[resident]["Name"], 
+                                                residents[resident]["Description"], 
+                                                residents[resident]["Personality"],
+                                                self)
+            print("Agent Initialized with default method")
+        
         
     def rest_date(self):
         days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday","Saturday", "Sunday"]
@@ -79,6 +95,5 @@ class World:
                                           ".\n".join(list(sentence.values()))
                                          )
         
-if __name__ == "__main__":
-    world = World()
+
     

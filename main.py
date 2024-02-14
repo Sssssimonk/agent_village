@@ -19,6 +19,12 @@ def check_continue_simulation(continue_simulation=False):
 
     return world, filename
 
+def rag_simulation(hours_to_run=4, continue_simulation=False):
+    world, filename = check_continue_simulation(continue_simulation=continue_simulation)
+    for resident in world.residents:
+        world.residents[resident].rag_plan() # start first daily plan for the person 
+
+
 def run_simulation(hours_to_run=16, continue_simulation = False):
     world, filename = check_continue_simulation(continue_simulation=continue_simulation)
     
