@@ -4,7 +4,7 @@ from global_methods import *
 import numpy as np
 import sys
 
-def run_simulation(hours_to_run=16, continue_simulation = False):
+def check_continue_simulation(continue_simulation=False):
     if not continue_simulation:
         filename = generate_simulation_filename() #Generate unique file name for new simulation
         world = World() #Initialize new world and agents
@@ -16,6 +16,11 @@ def run_simulation(hours_to_run=16, continue_simulation = False):
             print("Starting a new simulation.")
             filename = generate_simulation_filename()
             world = World()
+
+    return world, filename
+
+def run_simulation(hours_to_run=16, continue_simulation = False):
+    world, filename = check_continue_simulation(continue_simulation=continue_simulation)
     
     #the current time is 8
     for _ in range(hours_to_run):
@@ -85,14 +90,9 @@ def run_simulation(hours_to_run=16, continue_simulation = False):
     
 
 if __name__ == '__main__':
-    if len(sys.argv) > 1:
+    if len(sys.argv) > 1: # continue on previous simulation
         run_simulation(int(sys.argv[1]), bool(sys.argv[2]))
-    else:
+    else: # start a new simulation
         run_simulation(int(sys.argv[1]))
 
-#     while True:
-#         count = input("Enter iteration to run: ")
-#         while count > 0:
-#             run_simulation()
-#             count -= 1
 

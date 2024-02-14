@@ -10,7 +10,6 @@ class Person:
         self.memory = []
         self.location = "Town Square"
         self.personality = personality
-        # hard code self.world?
         self.world = world
         self.daily_plan = None
         self.plan_lst = {}
@@ -88,15 +87,7 @@ class Person:
                                                                    ))
             
             # print("The action for " + self.name + "is : " + response)
-            #return response
-        
-            #TODO: adjust generation config, make the output more stable 
-            #TODO: enable agent to move to another space
 
-        if task == "some other action":
-            #TODO
-            pass
-        
         if task == "place":
             prompt = generate_prompt("place", self, self.world)
             response = generate_response(prompt, max_new_tokens=10, min_new_tokens=1)[0]['generated_text']
@@ -113,7 +104,6 @@ class Person:
             chat = response.split("<Output>:")[1]
             chat_result = chat.split('\n<')[0].replace('\n\n', '\n')
             return re.sub(r'\n\n+', '', chat_result)
-            
         
         if task == "if_chat":
             prompt = generate_prompt("if_chat", self, self.world)

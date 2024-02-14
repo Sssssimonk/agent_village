@@ -7,7 +7,7 @@ from transformers import BitsAndBytesConfig
 from llama_index import VectorStoreIndex, SimpleDirectoryReader, ServiceContext
 from llama_index.llms import HuggingFaceLLM
 from llama_index.prompts import PromptTemplate
-from llama_index import StringIterableReader, TreeIndex
+from llama_index.readers import StringIterableReader
 
 # Declare pipe and service_context as global variable, so that they can be accessed at later functions
 pipe = None 
