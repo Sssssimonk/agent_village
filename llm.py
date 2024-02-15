@@ -69,7 +69,7 @@ initialize_model('rag')
 def generate_index(description):
     document = Document(text=description)
     # documents = StringIterableReader().load_data(text=description)
-    index = VectorStoreIndex.from_documents(document, service_context=service_context)
+    index = VectorStoreIndex.from_documents([document], service_context=service_context)
     return index
 
 def generate_prompt(task, person, world):

@@ -17,8 +17,6 @@ class Person:
         self.summary = []
         self.index = None
 
-    def initialize_index():
-        pass
 
     def perceive(self, world):
         # perceive current environment and memorize into memory

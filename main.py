@@ -4,10 +4,10 @@ from global_methods import *
 import numpy as np
 import sys
 
-def check_continue_simulation(continue_simulation=False):
+def check_continue_simulation(continue_simulation=False, rag=False):
     if not continue_simulation:
         filename = generate_simulation_filename() #Generate unique file name for new simulation
-        world = World() #Initialize new world and agents
+        world = World(rag) #Initialize new world and agents
     else:
         filename = select_simulation_file() #User selects a existing simulation
         if filename:
@@ -15,14 +15,16 @@ def check_continue_simulation(continue_simulation=False):
         else:
             print("Starting a new simulation.")
             filename = generate_simulation_filename()
-            world = World()
+            world = World(rag)
 
     return world, filename
 
 def rag_simulation(hours_to_run=4, continue_simulation=False):
-    world, filename = check_continue_simulation(continue_simulation=continue_simulation)
+    world, filename = check_continue_simulation(continue_simulation=continue_simulation, rag=True)
     for resident in world.residents:
         world.residents[resident].rag_plan() # start first daily plan for the person 
+
+    return world
 
 
 def run_simulation(hours_to_run=16, continue_simulation = False):

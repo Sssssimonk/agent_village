@@ -6,7 +6,7 @@ from llm import generate_index
 
 
 class World:
-    def __init__(self):
+    def __init__(self, rag=False):
         self.town_areas = None
         self.world_graph = self.initialize_world()
         self.residents = {}
@@ -15,7 +15,7 @@ class World:
         self.weather = -1
         self.date_index = -1
         
-        self.initialize_agents()
+        self.initialize_agents(rag)
 
     def initialize_world(self):
         # initialize town areas and world graph
