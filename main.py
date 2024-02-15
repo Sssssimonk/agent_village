@@ -28,12 +28,10 @@ def rag_simulation(hours_to_run=4, continue_simulation=False):
 def run_simulation(hours_to_run=16, continue_simulation = False):
     world, filename = check_continue_simulation(continue_simulation=continue_simulation)
     
-    #the current time is 8
     for _ in range(hours_to_run):
         place_dict = {}
-        date_index = -1
-        if world.cur_time == 8:
-            
+        if world.cur_time == 8:  # start of the day
+            # create daily plans
             for resident in world.residents:
                 world.residents[resident].plan()
                 print(world.residents[resident].plan_lst)
@@ -42,11 +40,12 @@ def run_simulation(hours_to_run=16, continue_simulation = False):
             print("****************************")
             print("Today is {}, it's {}.\n".format(world.date, world.weather))    
         
-        if world.cur_time > 23:
+
+        if world.cur_time > 23: # end of the day
             print("=== Today is over and a new day will begin soon. ===\n")
             print("****************************")
             for resident in world.residents:
-                world.residents[resident].retrieve()
+                world.residents[resident].retrieve()  # summarize memory then reset it
                 world.cur_time = 8
             
             continue
@@ -55,8 +54,8 @@ def run_simulation(hours_to_run=16, continue_simulation = False):
         print("Current is on {}:00.".format(world.cur_time))
         
         for resident in world.residents:
-            world.residents[resident].action("place")
-            world.residents[resident].action()
+            world.residents[resident].action("place") # update resident's location
+            world.residents[resident].action("move")
             if world.residents[resident].location in place_dict.keys():
                 name = world.residents[resident].name.split(" ")[0]
                 place_dict[world.residents[resident].location].append(name)

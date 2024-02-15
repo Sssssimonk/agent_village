@@ -2,8 +2,8 @@ import networkx as nx
 import json
 from person import Person
 import numpy as np
+from llm import generate_index
 
-from llama_index import Document, VectorStoreIndex
 
 class World:
     def __init__(self):
@@ -16,9 +16,6 @@ class World:
         self.date_index = -1
         
         self.initialize_agents()
-        
-    
-
 
     def initialize_world(self):
         # initialize town areas and world graph
@@ -51,16 +48,15 @@ class World:
             residents = data["town_residents"]
 
         if rag == True:
-            for resident in resident.keys():
+            for resident in residents.keys():
                 self.residents[resident] = Person(residents[resident]["Name"], 
                                                 residents[resident]["Description"], 
                                                 residents[resident]["Personality"],
                                                 self)
                 
-                initial_memory = [residents[resident]["Name"], residents[resident]["Description"]]
-                documents = [Document(text=t) for t in initial_memory]
-                self.residents[resident].initialize_index()
-
+                # generate index for agents
+                description = residents[resident]['Description']
+                self.residents[resident].index = generate_index(description)
                 
             print("Agent Initialized with RAG")
         else:

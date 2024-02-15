@@ -10,6 +10,8 @@ from llama_index.llms import HuggingFaceLLM
 from llama_index.prompts import PromptTemplate
 from llama_index.readers import StringIterableReader
 
+from llama_index import Document
+
 
 # Declare pipe and service_context as global variable, so that they can be accessed at later functions
 pipe = None 
@@ -61,12 +63,13 @@ def initialize_model(mnemonics='default'):
         service_context = ServiceContext.from_defaults(llm=llm, embed_model="local:BAAI/bge-small-en-v1.5")
         print("hf_RAG_model_initialized")
 
-initialize_model()
+initialize_model('rag')
 
 #put world_setting and daily plan into initialization
-def generate_index(text):
-    documents = StringIterableReader().load_data(texts=[text])
-    index = VectorStoreIndex.from_documents(documents, service_context=service_context)
+def generate_index(description):
+    document = Document(text=description)
+    # documents = StringIterableReader().load_data(text=description)
+    index = VectorStoreIndex.from_documents(document, service_context=service_context)
     return index
 
 def generate_prompt(task, person, world):
@@ -169,10 +172,13 @@ def generate_response(prompt, max_new_tokens=100, min_new_tokens=50):
 
     return response
 
-def generate_response_rag(prompt, index, max_new_tokens=100, min_new_tokens=50):
-    # given the prompt provided, create output from the pipeline
-    # response = pipe(prompt, max_new_tokens=max_new_tokens, min_new_tokens=min_new_tokens)
-    query_engine = index.as_query_engine()
+def rag_generate_response(prompt, person):
+    query_engine = person.index.as_query_engine() # use agent's index to create query_engine
     response = query_engine.query(prompt)
 
-    return response
+    return response.response
+
+def index_insert(person, response):
+    document = Document(text=response)
+    person.index.insert(document)
+
