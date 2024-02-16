@@ -88,6 +88,7 @@ class Person:
             # print("The action for " + self.name + "is : " + response)
 
         if task == "place": # generate a location in the town areas
+            
             prompt = generate_prompt("place", self, self.world)
             response = generate_response(prompt, max_new_tokens=10, min_new_tokens=1)[0]['generated_text']
             place = response.split("<Output>:")[1]
@@ -120,8 +121,18 @@ class Person:
         response = rag_generate_response(prompt, self)
 
         index_insert(self, response) # insert the generated document back to index
+        self.daily_plan = response 
 
-        print("RAG response is + : " + response)
+        for plan_value in self.daily_plan.split('\n'):
+            if " - " in plan_value:
+                key = plan_value.split(":")[0]
+                value = plan_value.split(" - ")[1].lower()
+                self.plan_lst["{}:00".format(key)] = value
+                
+                if "23:00" in self.plan_lst.keys():
+                    break
+
+        # print("RAG response is + : " + response)
         # daily_plan = response.split("<Output>:")[1]     
         # self.daily_plan = daily_plan
 
@@ -129,8 +140,21 @@ class Person:
 
 
     def rag_retreive(self):
-        # perceive current environment and memorize into vector database(memory)
-        pass
+        # summarize today's memory, add to seld.summary, clear memory
+        prompt = generate_prompt("summary_memory", self, self.world)
+        response = rag_generate_response(prompt, self)
+
+        index_insert(self, response)
+        summary = response
+        for i in summary:
+            if len(i) != 0:
+                self.summary.append(i)
+                break
+        
+        self.daily_plan = None
+        self.plan_lst = {}
+        self.meet = []
+        self.memory = []
 
     def rag_action(self):
         pass

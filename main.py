@@ -3,6 +3,7 @@ from world import *
 from global_methods import *
 import numpy as np
 import sys
+from llm import initialize_model
 
 def check_continue_simulation(continue_simulation=False, rag=False):
     if not continue_simulation:
@@ -20,14 +21,56 @@ def check_continue_simulation(continue_simulation=False, rag=False):
     return world, filename
 
 def rag_simulation(hours_to_run=4, continue_simulation=False):
+    initialize_model('rag')
     world, filename = check_continue_simulation(continue_simulation=continue_simulation, rag=True)
-    for resident in world.residents:
-        world.residents[resident].rag_plan() # start first daily plan for the person 
+
+    for _ in range(hours_to_run):
+        place_dict = {}
+        if world.cur_time == 8:  # start of the day
+            # create daily plans
+            for resident in world.residents:
+                world.residents[resident].rag_plan() # start first daily plan for the person 
+                print(world.residents[resident].plan_lst)
+                print(world.residents[resident].daily_plan)
+
+            world.rest_date() 
+            print("****************************")
+            print("Today is {}, it's {}.\n".format(world.date, world.weather))    
+
+        if world.cur_time > 23: # end of the day
+            print("=== Today is over and a new day will begin soon. ===\n")
+            print("****************************")
+            for resident in world.residents:
+                world.residents[resident].retrieve()  # summarize memory then reset it
+                world.cur_time = 8
+            
+            continue
+
+        print("Current is on {}:00.".format(world.cur_time))
+
+        
+        # for resident in world.residents:
+        #     world.residents[resident].action("place") # update resident's location
+        #     world.residents[resident].action("move")
+        #     if world.residents[resident].location in place_dict.keys():
+        #         name = world.residents[resident].name.split(" ")[0]
+        #         place_dict[world.residents[resident].location].append(name)
+        #     else:
+        #         name = world.residents[resident].name.split(" ")[0]
+        #         place_dict[world.residents[resident].location] = [name]
+
+
+        # save_simulation_state(world, filename) # save state at the end of each hour
 
     return world
 
 
-def run_simulation(hours_to_run=16, continue_simulation = False):
+def run_simulation(hours_to_run=16, continue_simulation=False, rag=False):
+    if rag == True:
+        rag_simulation(hours_to_run=hours_to_run, continue_simulation=continue_simulation)
+        return 
+    
+    initialize_model('default')
     world, filename = check_continue_simulation(continue_simulation=continue_simulation)
     
     for _ in range(hours_to_run):

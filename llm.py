@@ -63,12 +63,10 @@ def initialize_model(mnemonics='default'):
         service_context = ServiceContext.from_defaults(llm=llm, embed_model="local:BAAI/bge-small-en-v1.5")
         print("hf_RAG_model_initialized")
 
-initialize_model('rag')
+# initialize_model('rag')
 
-#put world_setting and daily plan into initialization
 def generate_index(description):
     document = Document(text=description)
-    # documents = StringIterableReader().load_data(text=description)
     index = VectorStoreIndex.from_documents([document], service_context=service_context)
     return index
 
@@ -89,11 +87,25 @@ def generate_prompt(task, person, world):
                               )
         
     if task == "place":
+        plan_action = ""
+        if "{}:00".format(world.cur_time) in person.plan_lst.keys():
+            plan_action = "{} plan to {}".format(person.name.split(" ")[0], 
+                                                 person.plan_lst["{}:00".format(world.cur_time)]
+                                                )
+        else:
+            before_action = ""
+            if world.cur_time == 8:
+                before_action = "just wake up!"
+            else:
+                before_action = person.memory
+            plan_action = before_action.replace("I will ", "I already ")
+
         prompt = prompt.format(person.name, 
                                person.description, 
                                ", ".join(list(world.town_areas.keys())),
-                               "{} plan to {}".format(person.name.split(" ")[0], 
-                                                      person.plan_lst["{}:00".format(world.cur_time)]),
+                            #    "{} plan to {}".format(person.name.split(" ")[0], 
+                            #                           person.plan_lst["{}:00".format(world.cur_time)]),
+                               plan_action,
                                world.cur_time
                               )
     
@@ -106,10 +118,18 @@ def generate_prompt(task, person, world):
                 before_action = "\n".join(person.memory)
             else:
                 before_action = "\n".join(person.memory[-5:])
+
+        plan_action = ""
+        if "{}:00".format(world.cur_time) in person.plan_lst.keys():
+            plan_action = person.plan_lst["{}:00".format(world.cur_time)]
+        else:
+            plan_action = before_action
+
         prompt = prompt.format(person.name,
                                person.description,
                                person.location,
-                               person.plan_lst["{}:00".format(world.cur_time)],
+                              # person.plan_lst["{}:00".format(world.cur_time)],
+                               plan_action,
 #                                before_action,
                                world.cur_time)
     if task == "if_chat":
