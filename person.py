@@ -30,7 +30,7 @@ class Person:
     def plan(self):
         # create daily plan whenever the new day starts
         prompt = generate_prompt("daily_plan", self, self.world)
-        response = generate_response(prompt, max_new_tokens=500, min_new_tokens=100)[0]['generated_text']
+        response = generate_response(prompt, max_new_tokens=500, min_new_tokens=100)
         
         
         daily_plan = response.split("<Output>:")[1]     # delete prompt template provided
@@ -51,7 +51,7 @@ class Person:
     def retrieve(self):
         # summarize today's memory, add to seld.summary, clear memory
         prompt = generate_prompt("summary_memory", self, self.world)
-        response = generate_response(prompt, max_new_tokens=200, min_new_tokens=50)[0]['generated_text']
+        response = generate_response(prompt, max_new_tokens=200, min_new_tokens=50)
         summary = response.split("<Output>:")[1].split('\n')
         for i in summary:
             if len(i) != 0:
@@ -73,7 +73,7 @@ class Person:
 
         if task == "move":
             prompt = generate_prompt("action", self, self.world)
-            response = generate_response(prompt, max_new_tokens=500, min_new_tokens=10)[0]['generated_text']
+            response = generate_response(prompt, max_new_tokens=500, min_new_tokens=10)
             action = response.split("<Output>:")[1]  # delete prompt template provided
             for i in action.split('\n'):
                 if "I will " in i:
@@ -90,7 +90,7 @@ class Person:
         if task == "place": # generate a location in the town areas
             
             prompt = generate_prompt("place", self, self.world)
-            response = generate_response(prompt, max_new_tokens=10, min_new_tokens=1)[0]['generated_text']
+            response = generate_response(prompt, max_new_tokens=10, min_new_tokens=1)
             place = response.split("<Output>:")[1]
             for building in self.world.town_areas.keys():
                 if building.lower() in place.lower():
@@ -99,14 +99,14 @@ class Person:
             
         if task == "chat":
             prompt = generate_prompt("chat", self, self.world)
-            response = generate_response(prompt, max_new_tokens=500, min_new_tokens=100)[0]['generated_text']
+            response = generate_response(prompt, max_new_tokens=500, min_new_tokens=100)
             chat = response.split("<Output>:")[1]
             chat_result = chat.split('\n<')[0].replace('\n\n', '\n')
             return re.sub(r'\n\n+', '', chat_result)
         
         if task == "if_chat":
             prompt = generate_prompt("if_chat", self, self.world)
-            response = generate_response(prompt, max_new_tokens=5, min_new_tokens=1)[0]['generated_text']
+            response = generate_response(prompt, max_new_tokens=5, min_new_tokens=1)
             check_chat = response.split("<Output>:")[1]
             check_chat = np.float64(check_chat) if any(i.isdigit() for i in check_chat) else 0
             if check_chat >= 7:
@@ -156,8 +156,52 @@ class Person:
         self.meet = []
         self.memory = []
 
-    def rag_action(self):
-        pass
+    def rag_action(self, task="move"):
+        if task == "move":
+            prompt = generate_prompt("action", self, self.world)
+            response = rag_generate_response(prompt,self)
+            index_insert(self, response)
+            action = response
+            for i in action.split('\n'):
+                if "I will " in i:
+                    action = i
+                    break
+            self.memory.append("At {}:00, I am {} on {}. {}".format(self.world.cur_time,
+                                                                    self.name,
+                                                                    self.location,
+                                                                    action
+                                                                   ))
+            
+            # print("The action for " + self.name + "is : " + response)
+
+        if task == "place": # generate a location in the town areas
+            
+            prompt = generate_prompt("place", self, self.world)
+            response = rag_generate_response(prompt, self)
+            index_insert(self, response)
+            place = response
+            for building in self.world.town_areas.keys():
+                if building.lower() in place.lower():
+                    self.location = building
+                    break
+            
+        if task == "chat":
+            prompt = generate_prompt("chat", self, self.world)
+            response = rag_generate_response(prompt, self)
+            index_insert(self, response)
+            chat = response
+            chat_result = chat.split('\n<')[0].replace('\n\n', '\n')
+            return re.sub(r'\n\n+', '', chat_result)
+        
+        if task == "if_chat":
+            prompt = generate_prompt("if_chat", self, self.world)
+            response = rag_generate_response(prompt, self)
+            # index_insert(self, response)
+            check_chat = response
+            check_chat = np.float64(check_chat) if any(i.isdigit() for i in check_chat) else 0
+            if check_chat >= 7:
+                return True
+            return False
 
 
 

@@ -1,7 +1,6 @@
 from person import *
 from world import *
 from global_methods import *
-import numpy as np
 import sys
 from llm import initialize_model
 
@@ -49,18 +48,44 @@ def rag_simulation(hours_to_run=4, continue_simulation=False):
         print("Current is on {}:00.".format(world.cur_time))
 
         
-        # for resident in world.residents:
-        #     world.residents[resident].action("place") # update resident's location
-        #     world.residents[resident].action("move")
-        #     if world.residents[resident].location in place_dict.keys():
-        #         name = world.residents[resident].name.split(" ")[0]
-        #         place_dict[world.residents[resident].location].append(name)
-        #     else:
-        #         name = world.residents[resident].name.split(" ")[0]
-        #         place_dict[world.residents[resident].location] = [name]
+        for resident in world.residents:
+            world.residents[resident].rag_action("place") # update resident's location
+            world.residents[resident].rag_action("move")
+            if world.residents[resident].location in place_dict.keys():
+                name = world.residents[resident].name.split(" ")[0]
+                place_dict[world.residents[resident].location].append(name)
+            else:
+                name = world.residents[resident].name.split(" ")[0]
+                place_dict[world.residents[resident].location] = [name]
 
+        for key_place, value_agent in place_dict.items():
+            if len(value_agent) == 1:
+                print(world.residents[value_agent[0]].memory[-1].split(',')[1])
+            else:
+                
+                main_agent = world.residents[value_agent[0]]
+                target_agent = value_agent[1:]
+                main_agent.meet = target_agent
+                
+                for people in value_agent:
+                    world.residents[people].other_meet(value_agent)
+                    
+                print(world.agent_meet(value_agent, key_place))
+                
+                chat_if_result = main_agent.rag_action("if_chat")
+                if chat_if_result:
+                    chat_result = main_agent.rag_action("chat")
+                    print(chat_result)
+                    for people in value_agent:
+                        world.residents[people].memory[-1] += ", and we have a conversion that content is:"
+                        world.residents[people].memory[-1] += chat_result
+                else:
+                    world.residents[people].memory[-1] += "."
 
-        # save_simulation_state(world, filename) # save state at the end of each hour
+                    
+        print("====== This hour is end, new hour will start. ======")
+        world.cur_time += 1
+        save_simulation_state(world, filename) # save state at the end of each hour
 
     return world
 

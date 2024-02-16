@@ -5,12 +5,9 @@ from transformers import AutoTokenizer, AutoModelForCausalLM
 import torch
 from transformers import BitsAndBytesConfig
 
-from llama_index import VectorStoreIndex, SimpleDirectoryReader, ServiceContext
+from llama_index import VectorStoreIndex, ServiceContext, Document
 from llama_index.llms import HuggingFaceLLM
 from llama_index.prompts import PromptTemplate
-from llama_index.readers import StringIterableReader
-
-from llama_index import Document
 
 
 # Declare pipe and service_context as global variable, so that they can be accessed at later functions
@@ -188,7 +185,7 @@ def generate_prompt(task, person, world):
 
 def generate_response(prompt, max_new_tokens=100, min_new_tokens=50):
     # given the prompt provided, create output from the pipeline
-    response = pipe(prompt, max_new_tokens=max_new_tokens, min_new_tokens=min_new_tokens)
+    response = pipe(prompt, max_new_tokens=max_new_tokens, min_new_tokens=min_new_tokens)[0]['generated_text']
 
     return response
 
