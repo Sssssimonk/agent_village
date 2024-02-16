@@ -22,6 +22,7 @@ which is essential to reproduce our project.
 ## Parameters
 1. `hours_to_run` (optional): The number of hours you want the simulation to run. Default is 16
 2. `continue_simulation` (optional): A flag indicating whether to continue from an existing simulation. Use True to continue or False to start a new simulation. Default is False.
+3. `rag` (optional): THe underlying text generation method for the simulation. Use True to intialize the simulation with Retrieval Augmented Generation. Defualt is False.
 
 ## Reproducing Results
 To run the simulation, you simply need to run the `main.py `. This file will call the functions we defined in other files, so it is the primary entry point for our project and executes the necessary code to generate the results.
@@ -36,9 +37,9 @@ Follow these steps to run `main.py`:
    ```
    - To customize the parameters, follow the format below:
    ```bash
-   python main.py [hours_to_run] [continue_simulation]
+   python main.py [hours_to_run] [continue_simulation] [rag]
    ```
-   Replace `[hours_to_run]` with the desired number of hours for the simulation (positive integer less than 16) and `[continue_simulation]` with `True` or `False` based on your preference.
+   Replace `[hours_to_run]` with the desired number of hours for the simulation (positive integer less than 16) and `[continue_simulation] [rag]` with `True` or `False` based on your preference. 
 
    
    **Continuing from an Existing Simulation:**  
