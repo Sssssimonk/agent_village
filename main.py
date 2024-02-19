@@ -4,7 +4,7 @@ from global_methods import *
 import numpy as np
 import sys
 
-def run_simulation(hours_to_run=16, continue_simulation = False):
+def run_simulation(hours_to_run=16, continue_simulation = False, method="sim"):
     if not continue_simulation:
         filename = generate_simulation_filename() #Generate unique file name for new simulation
         world = World() #Initialize new world and agents
@@ -35,7 +35,7 @@ def run_simulation(hours_to_run=16, continue_simulation = False):
             print("=== Today is over and a new day will begin soon. ===\n")
             print("****************************")
             for resident in world.residents:
-                world.residents[resident].retrieve()
+                world.residents[resident].retrieve(method)
                 world.cur_time = 8
             
             continue
@@ -44,8 +44,8 @@ def run_simulation(hours_to_run=16, continue_simulation = False):
         print("Current is on {}:00.".format(world.cur_time))
         
         for resident in world.residents:
-            world.residents[resident].action("place")
-            world.residents[resident].action()
+            world.residents[resident].action("place", method)
+            world.residents[resident].action("move", method)
             if world.residents[resident].location in place_dict.keys():
                 name = world.residents[resident].name.split(" ")[0]
                 place_dict[world.residents[resident].location].append(name)
@@ -63,8 +63,9 @@ def run_simulation(hours_to_run=16, continue_simulation = False):
                 main_agent.meet = target_agent
                 
                 for people in value_agent:
+#                     print(world.residents[people].memory[-1])
                     world.residents[people].other_meet(value_agent)
-                    
+                   
                 print(world.agent_meet(value_agent, key_place))
                 
                 chat_if_result = main_agent.action("if_chat")

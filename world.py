@@ -2,6 +2,7 @@ import networkx as nx
 import json
 from person import Person
 import numpy as np
+from llm import generate_index
 
 class World:
     def __init__(self) -> None:
@@ -53,6 +54,8 @@ class World:
                                              residents[resident]["Description"], 
                                              residents[resident]["Personality"],
                                              self)
+            description = residents[resident]['Description']
+            self.residents[resident].index = generate_index(description)
 
         print("Agent Initialized")
         
