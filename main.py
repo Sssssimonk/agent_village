@@ -4,7 +4,7 @@ from global_methods import *
 import numpy as np
 import sys
 
-def run_simulation(hours_to_run=16, continue_simulation = False, method="sim"):
+def run_simulation(hours_to_run=16, continue_simulation = False):
     if not continue_simulation:
         filename = generate_simulation_filename() #Generate unique file name for new simulation
         world = World() #Initialize new world and agents
@@ -22,11 +22,17 @@ def run_simulation(hours_to_run=16, continue_simulation = False, method="sim"):
         place_dict = {}
         date_index = -1
         if world.cur_time == 8:
-            
+
             for resident in world.residents:
                 world.residents[resident].plan()
-#                 print(world.residents[resident].plan_lst)
-#                 print(world.residents[resident].daily_plan)
+            
+            element = input("Do yu need Special Event on that day? y/n")      
+            if element == 'y':
+                pass
+#                 name_special = input("Which will agent will have? {}".format(", ".join(list(agent.keys()))))
+#                 special_event = input("---")
+#                 world.residents[name_special].special_event = special_event
+            
             world.rest_date()    
             print("****************************")
             print("Today is {}, it's {}.\n".format(world.date, world.weather))    
@@ -35,7 +41,7 @@ def run_simulation(hours_to_run=16, continue_simulation = False, method="sim"):
             print("=== Today is over and a new day will begin soon. ===\n")
             print("****************************")
             for resident in world.residents:
-                world.residents[resident].retrieve(method)
+                world.residents[resident].retrieve()
                 world.cur_time = 8
             
             continue
@@ -44,8 +50,8 @@ def run_simulation(hours_to_run=16, continue_simulation = False, method="sim"):
         print("Current is on {}:00.".format(world.cur_time))
         
         for resident in world.residents:
-            world.residents[resident].action("place", method)
-            world.residents[resident].action("move", method)
+#             world.residents[resident].action("place")
+            world.residents[resident].action("move")
             if world.residents[resident].location in place_dict.keys():
                 name = world.residents[resident].name.split(" ")[0]
                 place_dict[world.residents[resident].location].append(name)
@@ -63,7 +69,6 @@ def run_simulation(hours_to_run=16, continue_simulation = False, method="sim"):
                 main_agent.meet = target_agent
                 
                 for people in value_agent:
-#                     print(world.residents[people].memory[-1])
                     world.residents[people].other_meet(value_agent)
                    
                 print(world.agent_meet(value_agent, key_place))
@@ -91,9 +96,4 @@ if __name__ == '__main__':
     else:
         run_simulation(int(sys.argv[1]))
 
-#     while True:
-#         count = input("Enter iteration to run: ")
-#         while count > 0:
-#             run_simulation()
-#             count -= 1
 

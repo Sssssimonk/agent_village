@@ -8,10 +8,15 @@ class Person:
     def __init__(self, name, description, personality, world) -> None:
         self.name = name
         self.description = description
-        self.memory = []
+        self.special_event = None
+        
+        self.basic_memory = []
+        self.rag_memory = []
         self.memory_label = []
+        
         self.location = "Town Square"
         self.personality = personality
+        
         # hard code self.world?
         self.world = world
         self.daily_plan = None
@@ -54,7 +59,7 @@ class Person:
 
 #         print("The daily plan for " + self.name + " is : " + self.daily_plan)
     
-    def retrieve(self, method):
+    def retrieve(self):
         prompt = generate_prompt("summary_memory", self, self.world)
         response = generate_response(prompt, max_new_tokens=200, min_new_tokens=50)[0]['generated_text']
         rag_respones = rag_response(prompt, self)
@@ -68,7 +73,7 @@ class Person:
             if len(i) != 0:
                 basic_summary = i
                 break
-        label, summary_result = action_compare(basic_summary, str(rag_respones), plan_temp, method)
+        label, summary_result = action_compare(basic_summary, str(rag_respones), plan_temp)
         self.memory_label.append(label)
         self.memory.append(summary_result)
         
@@ -83,7 +88,7 @@ class Person:
         # TODO: process memory, remove anything useless
         pass 
 
-    def action(self, task="move", method="sim"):
+    def action(self, task="move"):
 
         if task == "move":
             prompt = generate_prompt("action", self, self.world)
@@ -95,18 +100,22 @@ class Person:
                 if "I will " in i:
                     action = i
                     break
-                    
+            rag, default = self.action("place")        
             basic_action = "At {}:00, I am {} on {}. {}".format(self.world.cur_time,
                                                                 self.name,
-                                                                self.location,
+                                                                default,
                                                                 action
                                                                )
             
             rag_action = "At {}:00, I am {} on {}. {}".format(self.world.cur_time,
                                                               self.name,
-                                                              self.location,
+                                                              rag,
                                                               rag_respones
                                                              )
+            self.basic_memory.append(basic_action)
+            self.rag_memory.append(rag_action)
+            
+            
             plan_action = ""
             if "{}:00".format(self.world.cur_time) in self.plan_lst.keys():
                 plan_action = self.plan_lst["{}:00".format(self.world.cur_time)]
@@ -115,8 +124,10 @@ class Person:
                                                          )
             else:
                 plan_action = self.memory[-1]
-            label, action_result = action_compare(basic_action, rag_action, plan_action, method)
-            self.memory_label.append(label)
+            label, action_result = action_compare(basic_action, rag_action, plan_action)
+            
+            if label != 'same':
+                self.memory_label.append(label)
             self.memory.append(action_result)
             # print("The action for " + self.name + "is : " + response)
             #return response
@@ -147,7 +158,7 @@ class Person:
                 
             if rag_str_respones not in list(self.world.town_areas.keys()):
                 rag_str_respones = "Housing Area"
-            
+
             
             if rag_str_respones == place:
                 self.location = rag_str_respones
@@ -157,13 +168,15 @@ class Person:
                     action_check = self.plan_lst["{}:00".format(self.world.cur_time)]
                 else:
                     action_check = self.memory[-1]
-                compare_result = place_compare(place, rag_str_respones, action_check, method)
+                compare_result = place_compare(place, rag_str_respones, action_check)
                 if compare_result == "rag":
                     self.location = rag_str_respones
                 else:
                     self.location = place
                 self.memory_label.append(compare_result)
+            return rag_str_respones, place
             
+        
         if task == "chat":
             prompt = generate_prompt("chat", self, self.world)
             response = generate_response(prompt, max_new_tokens=500, min_new_tokens=100)[0]['generated_text']
