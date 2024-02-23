@@ -1,11 +1,15 @@
+from transformers import pipeline, AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig 
+import torch 
+
 import logging
 import sys
-logging.basicConfig(stream=sys.stdout, level=logging.INFO)
-logging.getLogger().addHandler(logging.StreamHandler(stream=sys.stdout))
+
 from llama_index.core import VectorStoreIndex, ServiceContext, Document
 from llama_index.llms.huggingface import HuggingFaceLLM
 from llama_index.core import PromptTemplate
 
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+logging.getLogger().addHandler(logging.StreamHandler(stream=sys.stdout))
 
 
 # ==================== Initialzied HF model ==================== # 
@@ -17,7 +21,6 @@ bnb_config = BitsAndBytesConfig(load_in_4bit=True,
                                 bnb_4bit_compute_dtype=torch.bfloat16
 )
 
-# use llama2 model in transfomers
 BASIC_TOKEN = "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"
 # MODEL_NAME = "lmsys/vicuna-7b-v1.5"
 # MODEL_NAME = "mistralai/Mistral-7B-v0.1"
@@ -58,16 +61,14 @@ def generate_model():
     service_context = ServiceContext.from_defaults(llm=llm, embed_model="local:BAAI/bge-small-en-v1.5")
     print("llama_index_model_initialized")
 
-    #return pipe, service_context
-
-# initialize_model('rag')
+generate_model()
 
 def generate_index(description):
     document = Document(text=description)
     index = VectorStoreIndex.from_documents([document], service_context=service_context)
     return index
 
-basic_llama, llama_index = generate_model()
+
 
 def generate_prompt(task, person, world):
     # from prompt file task.txt, read the prompt template and then out put a str prompt.

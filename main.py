@@ -2,12 +2,11 @@ from person import *
 from world import *
 from global_methods import *
 import sys
-from llm import initialize_model
 
-def check_continue_simulation(continue_simulation=False, rag=False):
+def check_continue_simulation(continue_simulation=False):
     if not continue_simulation:
         filename = generate_simulation_filename() #Generate unique file name for new simulation
-        world = World(rag) #Initialize new world and agents
+        world = World() #Initialize new world and agents
     else:
         filename = select_simulation_file() #User selects a existing simulation
         if filename:
@@ -15,34 +14,16 @@ def check_continue_simulation(continue_simulation=False, rag=False):
         else:
             print("Starting a new simulation.")
             filename = generate_simulation_filename()
-            world = World(rag)
+            world = World()
 
     return world, filename
 
 def run_simulation(hours_to_run=4, continue_simulation=False):
-    initialize_model('rag')
-    world, filename = check_continue_simulation(continue_simulation=continue_simulation, rag=True)
+    world, filename = check_continue_simulation(continue_simulation=continue_simulation)
 
     for _ in range(hours_to_run):
-        place_dict = {}
-        if world.cur_time == 8:
-
-            for resident in world.residents:
-                world.residents[resident].plan()
-            
-            element = input("Do yu need Special Event on that day? y/n")      
-            if element == 'y':
-                pass
-#                 name_special = input("Which will agent will have? {}".format(", ".join(list(agent.keys()))))
-#                 special_event = input("---")
-#                 world.residents[name_special].special_event = special_event
-            
-            world.reset_date()    
-            print("****************************")
-            print("Today is {}, it's {}.\n".format(world.date, world.weather))    
-        
-
-        if world.cur_time > 23: # end of the day
+        # end of the day
+        if world.cur_time > 24: 
             print("=== Today is over and a new day will begin soon. ===\n")
             print("****************************")
             for resident in world.residents:
@@ -51,8 +32,22 @@ def run_simulation(hours_to_run=4, continue_simulation=False):
             
             continue
         
+        place_dict = {}
+        if world.cur_time == 8:
+
+            for resident in world.residents:
+                world.residents[resident].plan()
+            
+            # element = input("Do yu need Special Event on that day? y/n")      
+            # if element == 'y':
+            #     pass
+#                 name_special = input("Which will agent will have? {}".format(", ".join(list(agent.keys()))))
+#                 special_event = input("---")
+#                 world.residents[name_special].special_event = special_event
+            
+            world.reset_date()     
         
-        print("Current is on {}:00.".format(world.cur_time))
+        print("Current time is {}:00.".format(world.cur_time))
         
         for resident in world.residents:
 #             world.residents[resident].action("place")

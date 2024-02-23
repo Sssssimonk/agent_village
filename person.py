@@ -1,4 +1,4 @@
-from llm import generate_prompt, generate_response, rag_generate_response, index_insert, rag_response
+from llm import generate_prompt, generate_response, index_insert, rag_response
 import numpy as np
 import re
 from compare import place_compare, action_compare
@@ -23,10 +23,6 @@ class Person:
         self.summary = []
         self.index = None
 
-
-    def perceive(self, world):
-        # perceive current environment and memorize into memory
-        pass 
     
     def other_meet(self, agents):
         meet_agent = [self.world.residents[index].name for index in agents]
@@ -77,12 +73,6 @@ class Person:
         self.plan_lst = {}
         self.meet = []
         self.memory = []
-        
-        
-
-    def reflect(self):
-        # TODO: process memory, remove anything useless
-        pass 
 
     def action(self, task="move"):
 
@@ -91,7 +81,7 @@ class Person:
             response = generate_response(prompt, max_new_tokens=500, min_new_tokens=10)
             rag_respones = rag_response(prompt, self)
 
-            action = response.split("<Output>:")[1]  # delete prompt template provided
+            action = response.split("<Output>:")[1]  
             for i in action.split('\n'):
                 if "I will " in i:
                     action = i
@@ -188,7 +178,7 @@ class Person:
 
     def rag_plan(self):
         prompt = generate_prompt("daily_plan", self, self.world)
-        response = rag_generate_response(prompt, self)
+        response = rag_response(prompt, self)
 
         index_insert(self, response) # insert the generated document back to index
         self.daily_plan = response 
@@ -212,7 +202,7 @@ class Person:
     def rag_retreive(self):
         # summarize today's memory, add to seld.summary, clear memory
         prompt = generate_prompt("summary_memory", self, self.world)
-        response = rag_generate_response(prompt, self)
+        response = rag_response(prompt, self)
 
         index_insert(self, response)
         summary = response
@@ -229,7 +219,7 @@ class Person:
     def rag_action(self, task="move"):
         if task == "move":
             prompt = generate_prompt("action", self, self.world)
-            response = rag_generate_response(prompt,self)
+            response = rag_response(prompt,self)
             index_insert(self, response)
             action = response
             for i in action.split('\n'):
@@ -247,7 +237,7 @@ class Person:
         if task == "place": # generate a location in the town areas
             
             prompt = generate_prompt("place", self, self.world)
-            response = rag_generate_response(prompt, self)
+            response = rag_response(prompt, self)
             index_insert(self, response)
             place = response
             for building in self.world.town_areas.keys():
@@ -257,7 +247,7 @@ class Person:
             
         if task == "chat":
             prompt = generate_prompt("chat", self, self.world)
-            response = rag_generate_response(prompt, self)
+            response = rag_response(prompt, self)
             index_insert(self, response)
             chat = response
             chat_result = chat.split('\n<')[0].replace('\n\n', '\n')
@@ -265,7 +255,7 @@ class Person:
         
         if task == "if_chat":
             prompt = generate_prompt("if_chat", self, self.world)
-            response = rag_generate_response(prompt, self)
+            response = rag_response(prompt, self)
             # index_insert(self, response)
             check_chat = response
             check_chat = np.float64(check_chat) if any(i.isdigit() for i in check_chat) else 0
