@@ -56,7 +56,7 @@ class Person:
         prompt = generate_prompt("summarize_action", self, self.world)
         response = generate_response(prompt, max_new_tokens=200, min_new_tokens=50)
 
-        summary = response.split("<Output>:")[1].split('\n')
+        summary = response.split("<Output>:")[1]   #.split('\n')
 
         plan = str(self.plan_lst).replace("'","")
         self.memory_consistency.append(calculate_memory_consistency(summary, plan))

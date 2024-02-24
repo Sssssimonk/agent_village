@@ -46,10 +46,16 @@ def initialize_model(mnemonics='default'):
 
         pipe = pipeline(task="text-generation", 
                 model=model, 
-                tokenizer=tokenizer
-                #PretrainedConfig = xxx
+                tokenizer=tokenizer,
+                temperature=0.8, # default value is 0.6, high temp -> more randomness  
+                top_p = 0.95 # default value is 0.9, higher top_p -> more randomness
                 )
-        
+        """
+        Higher temperature will make outputs more random and diverse.
+        Lower top-p values reduce diversity and focus on more probable tokens.
+        Lower top-k also concentrates sampling on the highest probability tokens for each step.
+        """
+
         print("huggingface model initialized")
 
     else:
@@ -74,7 +80,7 @@ def calculate_memory_consistency(summary, plan):
 
     embedding_1= sentence_model.encode(summary, convert_to_tensor=True)
     embedding_2 = sentence_model.encode(plan, convert_to_tensor=True)
-    score = util.pytorch_cos_sim(embedding_1, embedding_2).tolist()[0][0]
+    score = util.pytorch_cos_sim(embedding_1, embedding_2)#.tolist()[0][0]
     return score
 
 
@@ -150,7 +156,7 @@ def generate_prompt(task, person, world):
                                world.cur_time)
         
         # add recent memory into prompt
-        #prompt += before_action 
+        
 
     if task == "if_chat":
         target_name = []
