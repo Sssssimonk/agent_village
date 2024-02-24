@@ -107,7 +107,7 @@ def generate_prompt(task, person, world):
                                world.cur_time
                               )
     
-    if task == "action":
+    if task == "move":
         before_action = ""
         if world.cur_time == 8:
             before_action = "I just wake up!"

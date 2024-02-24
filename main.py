@@ -18,6 +18,31 @@ def check_continue_simulation(continue_simulation=False):
 
     return world, filename
 
+def if_meet(world, place_dict):
+    for key_place, value_agent in place_dict.items():
+        if len(value_agent) == 1: # if current place only have one agent, agent will do its own action
+            print(world.residents[value_agent[0]].basic_memory[-1].split(',')[1])
+        else: # if current place have at least 2 agents, they will start a conversation
+            main_agent = world.residents[value_agent[0]]
+            target_agent = value_agent[1:]
+            main_agent.meet = target_agent
+                
+            for people in value_agent:
+                world.residents[people].other_meet(value_agent) # add "I meet xx on xxx" to memory
+                   
+            print(world.agent_meet(value_agent, key_place))
+                
+            chat_if_result = main_agent.action("if_chat")
+            if chat_if_result:
+                chat_result = main_agent.action("chat")
+                print(chat_result)
+                for people in value_agent:
+                    world.residents[people].basic_memory[-1] += ", and we have a conversion that content is:"
+                    world.residents[people].basic_memory[-1] += chat_result
+            else:
+                world.residents[people].basic_memory[-1] += "."
+    
+
 def run_simulation(hours_to_run=4, continue_simulation=False):
     world, filename = check_continue_simulation(continue_simulation=continue_simulation)
 
@@ -32,7 +57,7 @@ def run_simulation(hours_to_run=4, continue_simulation=False):
             
             continue
         
-        place_dict = {}
+        
         if world.cur_time == 8:
 
             for resident in world.residents:
@@ -48,47 +73,30 @@ def run_simulation(hours_to_run=4, continue_simulation=False):
             world.reset_date()     
         
         print("Current time is {}:00.".format(world.cur_time))
-        
+        place_dict = {}
+        """
+        Example: {"School":['Tom', 'Jack'], "Shop":['David'], "Police Office":[]}
+        """
         for resident in world.residents:
 #             world.residents[resident].action("place")
             world.residents[resident].action("move")
+            # check if agent's location in the dict
             if world.residents[resident].location in place_dict.keys():
                 name = world.residents[resident].name.split(" ")[0]
                 place_dict[world.residents[resident].location].append(name)
-            else:
+            else: # if agent's location not in the dict, add to the dict
                 name = world.residents[resident].name.split(" ")[0]
                 place_dict[world.residents[resident].location] = [name]
         
-        for key_place, value_agent in place_dict.items():
-            if len(value_agent) == 1:
-                print(world.residents[value_agent[0]].memory[-1].split(',')[1])
-            else:
-                
-                main_agent = world.residents[value_agent[0]]
-                target_agent = value_agent[1:]
-                main_agent.meet = target_agent
-                
-                for people in value_agent:
-                    world.residents[people].other_meet(value_agent)
-                   
-                print(world.agent_meet(value_agent, key_place))
-                
-                chat_if_result = main_agent.action("if_chat")
-                if chat_if_result:
-                    chat_result = main_agent.action("chat")
-                    print(chat_result)
-                    for people in value_agent:
-                        world.residents[people].memory[-1] += ", and we have a conversion that content is:"
-                        world.residents[people].memory[-1] += chat_result
-                else:
-                    world.residents[people].memory[-1] += "."
+        if_meet(world, place_dict)
                     
         print("====== This hour is end, new hour will start. ======")
         world.cur_time += 1
         save_simulation_state(world, filename) # save state at the end of each hour
     
     return world
-    
+
+
 
 if __name__ == '__main__':
     if len(sys.argv) > 1: # continue on previous simulation
