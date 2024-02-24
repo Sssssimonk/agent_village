@@ -1,4 +1,4 @@
-from llm import generate_prompt, generate_response, rag_generate_response, index_insert
+from llm import generate_prompt, generate_response, rag_generate_response, index_insert, calculate_memory_consistency
 import numpy as np
 import re
 
@@ -16,6 +16,8 @@ class Person:
         self.meet = []
         self.summary = []
         self.index = None
+
+        self.memory_consistency = []
 
 
     def perceive(self, world):
@@ -47,12 +49,18 @@ class Person:
         
 
 #         print("The daily plan for " + self.name + " is : " + self.daily_plan)
-    
+
     def retrieve(self):
+        print(self.name + " is summarizing today's memory")
         # summarize today's memory, add to seld.summary, clear memory
-        prompt = generate_prompt("summary_memory", self, self.world)
+        prompt = generate_prompt("summarize_action", self, self.world)
         response = generate_response(prompt, max_new_tokens=200, min_new_tokens=50)
+
         summary = response.split("<Output>:")[1].split('\n')
+
+        plan = str(self.plan_lst).replace("'","")
+        self.memory_consistency.append(calculate_memory_consistency(summary, plan))
+
         for i in summary:
             if len(i) != 0:
                 self.summary.append(i)
@@ -141,7 +149,7 @@ class Person:
 
     def rag_retreive(self):
         # summarize today's memory, add to seld.summary, clear memory
-        prompt = generate_prompt("summary_memory", self, self.world)
+        prompt = generate_prompt("summarize_action", self, self.world)
         response = rag_generate_response(prompt, self)
 
         index_insert(self, response)

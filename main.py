@@ -99,6 +99,16 @@ def run_simulation(hours_to_run=16, continue_simulation=False, rag=False):
     world, filename = check_continue_simulation(continue_simulation=continue_simulation)
     
     for _ in range(hours_to_run):
+
+        if world.cur_time > 24: # end of the day
+            print("=== Today is over and a new day will begin soon. ===\n")
+            print("****************************")
+            for resident in world.residents:
+                world.residents[resident].retrieve()  # summarize memory then reset it
+                world.cur_time = 8
+            print("****************************")
+            continue
+
         place_dict = {}
         if world.cur_time == 8:  # start of the day
             # create daily plans
@@ -110,15 +120,6 @@ def run_simulation(hours_to_run=16, continue_simulation=False, rag=False):
             print("****************************")
             print("Today is {}, it's {}.\n".format(world.date, world.weather))    
         
-
-        if world.cur_time > 23: # end of the day
-            print("=== Today is over and a new day will begin soon. ===\n")
-            print("****************************")
-            for resident in world.residents:
-                world.residents[resident].retrieve()  # summarize memory then reset it
-                world.cur_time = 8
-            
-            continue
         
         
         print("Current is on {}:00.".format(world.cur_time))

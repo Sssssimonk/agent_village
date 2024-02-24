@@ -9,10 +9,14 @@ from llama_index import VectorStoreIndex, ServiceContext, Document
 from llama_index.llms import HuggingFaceLLM
 from llama_index.prompts import PromptTemplate
 
+from sentence_transformers import SentenceTransformer, util
+
 
 # Declare pipe and service_context as global variable, so that they can be accessed at later functions
 pipe = None 
 service_context = None 
+sentence_model = None
+
 quantization_config = BitsAndBytesConfig(
     load_in_4bit=True,
     bnb_4bit_compute_dtype=torch.bfloat16,
@@ -24,6 +28,7 @@ def initialize_model(mnemonics='default'):
     if mnemonics == 'default':
         # ==================== Initialzied HF model ==================== # 
         global pipe
+        global sentence_model
 
         access_token = "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"
         model_id = "meta-llama/Llama-2-7b-chat-hf"
@@ -35,6 +40,10 @@ def initialize_model(mnemonics='default'):
                                                     quantization_config=quantization_config,
                                                     token=access_token,
                                                     device_map="auto")
+        
+        sentence_model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
+        
+
         pipe = pipeline(task="text-generation", 
                 model=model, 
                 tokenizer=tokenizer
@@ -61,6 +70,14 @@ def initialize_model(mnemonics='default'):
         print("hf_RAG_model_initialized")
 
 # initialize_model('rag')
+def calculate_memory_consistency(summary, plan):
+
+    embedding_1= sentence_model.encode(summary, convert_to_tensor=True)
+    embedding_2 = sentence_model.encode(plan, convert_to_tensor=True)
+    score = util.pytorch_cos_sim(embedding_1, embedding_2).tolist()[0][0]
+    return score
+
+
 
 def generate_index(description):
     document = Document(text=description)
@@ -94,8 +111,10 @@ def generate_prompt(task, person, world):
             if world.cur_time == 8:
                 before_action = "just wake up!"
             else:
-                before_action = person.memory
+                before_action = person.memory[-1]
             plan_action = before_action.replace("I will ", "I already ")
+            
+
 
         prompt = prompt.format(person.name, 
                                person.description, 
@@ -129,6 +148,10 @@ def generate_prompt(task, person, world):
                                plan_action,
 #                                before_action,
                                world.cur_time)
+        
+        # add recent memory into prompt
+        #prompt += before_action 
+
     if task == "if_chat":
         target_name = []
         target_description = []
@@ -171,7 +194,7 @@ def generate_prompt(task, person, world):
                                world.date,
                                world.weather
                                )
-    if task == "summary_memory":
+    if task == "summarize_action":
         prompt = prompt.format(person.name,
                                person.description,
                                "\n".join(person.memory),
