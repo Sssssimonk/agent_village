@@ -18,6 +18,13 @@ We're not just building a simulated environment; we're crafting a micro-society 
 
 
 # Methods
+Our methodology encompasses the design, implementation, and comparative analysis of two distinct approaches to memory architecture in AI agents: the traditional memory structure utilized by Llama2 and the innovative Retrieval-Augmented Generation (RAG) structure powered by Llama Index. Our objective is to assess how these differing memory architectures impact learning efficiency, memory accuracy, and overall performance of generative agents within a simulated interactive environment.
+
+### Llama2 with conventional memory architecture
+Llama2 comes with a standard memory setup, where the model's internal state acts as the sole repository for information retention and retrieval, which mimics a traditional language model approach. In this architecture, the generative agent relies on its pre-trained knowledge and the information acquired during the simulation, where the memory is static. Agents use this memory model to generate responses and make decisions based on the static knowledge embedded within the model's parameters and context provided by the simulation environment.
+
+### Llama Index for RAG
+Llama Index for RAG introduces a dynamic external memory component to the conventional Llama2 setup. The RAG structure enables the model to query an extensive external knowledge  base in real-time, augmenting the agent's responses with information retrieved from the external database. The RAG model interacts with the Llama Index, an extensive database of information that can be contextually searched during an agent's decision-making process. The approach brings inclusion for up-to-date and relevant data information that may not be presented in the original training set. Agents equipped with the RAG memory structure can access a wider range of information beyond their internal knowledge base, which enables more nuanced and informed interaction as agents can pull relevant data from the Llama Index to generate responses and make decisions.
 
 # Results
 
