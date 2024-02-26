@@ -5,17 +5,15 @@ title: "AI Town: A Virtual Environment for Interaction Between Generative Agents
 ### Authors: Siyu Chen, Yexiaolu He, Jinxin Xiao, Celine Zhao
 
 # Introduction
-Imagine stepping into a world where virtual characters, known as generative agents, aren't just scripted entities but beings with the capacity to remember, learn, act and make decisions as dynamically as any human would. This isn't just a flight of fancy; it's the core of what we're exploring here.  
+Imagine stepping into a world where virtual characters, known as generative agents, aren't just scripted entities but beings with the capacity to remember, learn, act, and make decisions as dynamically as any human would. This isn't just a flight of fancy; it's the core of what we're exploring here.  
 
-We've built our work based on the paper [Generative Agents: Interactive Simulacra of Human Behavior](https://arxiv.org/abs/2304.03442), where it succesfully built a virtual town populated by 25 agents and they interact with each other just like we do. Here, agents are not just animated by code; they're enlivened dynamically by their own unique experiences thanks to the power of ChatGPT large language model(LLM).  
+We've built our work based on the paper [Generative Agents: Interactive Simulacra of Human Behavior](https://arxiv.org/abs/2304.03442), where it successfully built a virtual town populated by 25 agents and they interact with each other just like we do. Here, agents are not just animated by code; they're enlivened dynamically by their own unique experiences thanks to the power of ChatGPT large language model(LLM).  
 
-However, the high cost associated with this model made it imperative for us to seek more sustainable yet equally potent alternatives, leading us to transition to **HuggingFace-Vicuna model**, a free, efficient and well-performed LLM to ChatGPT model.  
+However, the high cost associated with this model made it imperative for us to seek more sustainable yet equally potent alternatives, leading us to transition to **HuggingFace-Vicuna model**, a free, efficient, and well-performed LLM to ChatGPT model.  
 
-Cost isn't the only frontier we're tackling, we face the intriguing dilemma of memory. The original work indicated that agents sometimes fabricate memories or assimilate inaccurate information, a byproduct of relying solely on LLMs for their knowledge base. To improve the memory consistent and enhance our agents' ability to interact with their world like human do, we devised two distinct memory structures. The default memory architecture is just a list of strings that contains daily events, actions, and summaries that agents draw from. Another framework is **Retrieval Augmented Generation (RAG)**, which doesn't just store information; it intelligently retrieves and filters data from an extensive external knowledge base. RAG ensures our agents are grounded in reality, basing their decisions and interactions on the most accurate and current information available. 
+Cost isn't the only frontier we're tackling, we face the intriguing dilemma of memory. The original work indicated that agents sometimes fabricate memories or assimilate inaccurate information, a byproduct of relying solely on LLMs for their knowledge base. To improve memory consistency and enhance our agents' ability to interact with their world as humans do, we devised two distinct memory structures. The default memory architecture is just a list of strings that contains daily events, actions, and summaries that agents draw from. Another framework is **Retrieval Augmented Generation (RAG)**, which doesn't just store information; it intelligently retrieves and filters data from an extensive external knowledge base. RAG ensures our agents are grounded in reality, basing their decisions and interactions on the most accurate and current information available. 
 
 We're not just building a simulated environment; we're crafting a micro-society where each interaction is as meaningful and real as those in the human world. As we continue to develop these memory structures, we invite you to follow our journey and witness the evolution of AI interactions in AI Town where every agent has a story grounded in reality.
-
-
 
 # Methods
 Our methodology encompasses the design, implementation, and comparative analysis of two distinct approaches to memory architecture in AI agents: the traditional memory structure utilized by Llama2 and the innovative Retrieval-Augmented Generation (RAG) structure powered by Llama Index. Our objective is to assess how these differing memory architectures impact learning efficiency, memory accuracy, and overall performance of generative agents within a simulated interactive environment.
@@ -28,4 +26,6 @@ Llama Index for RAG introduces a dynamic external memory component to the conven
 
 # Results
 ![Memory Consistency](/docs/assets/memory_consistency.png)
+
 # Conclusion
+The comparative analysis conducted in our simulated environment, agent village, provides compelling evidence of the efficacy of Retrieval-Augmented Generation (RAG) as a superior memory structure for generative agents throughout a three-day simulation, where both RAG and standard model ran. The RAG-equipped agents not only sustained a steady memory consistency but also showed an upward trend, suggesting a learning curve where the agents improved their memory coherence over time. Conversely, basic agents experienced a gradual decline in memory consistency. This outcome highlights the limitations of a static knowledge base in dynamic scenarios. In conclusion, these findings underscore the potential of RAG structures in enhancing the reliability of interactions in AI-driven simulations and virtual environments.
