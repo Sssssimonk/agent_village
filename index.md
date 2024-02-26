@@ -27,5 +27,5 @@ Llama2 comes with a standard memory setup, where the model's internal state acts
 Llama Index for RAG introduces a dynamic external memory component to the conventional Llama2 setup. The RAG structure enables the model to query an extensive external knowledge  base in real-time, augmenting the agent's responses with information retrieved from the external database. The RAG model interacts with the Llama Index, an extensive database of information that can be contextually searched during an agent's decision-making process. The approach brings inclusion for up-to-date and relevant data information that may not be presented in the original training set. Agents equipped with the RAG memory structure can access a wider range of information beyond their internal knowledge base, which enables more nuanced and informed interaction as agents can pull relevant data from the Llama Index to generate responses and make decisions.
 
 # Results
-
+![Memory Consistency](/agent_village/assets/memory_consistency.png)
 # Conclusion
