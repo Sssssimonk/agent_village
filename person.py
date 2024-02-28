@@ -147,13 +147,22 @@ class Person:
 
 
 
-    def rag_retreive(self):
+    def rag_retrieve(self):
         # summarize today's memory, add to seld.summary, clear memory
+        print(self.name + " is summarizing today's memory")
         prompt = generate_prompt("summarize_action", self, self.world)
         response = rag_generate_response(prompt, self)
 
         index_insert(self, response)
         summary = response
+        plan = str(self.plan_lst).replace("'","")
+
+        # print(summary)
+        # print(plan)
+        score = calculate_memory_consistency(summary, plan)
+
+        self.memory_consistency.append(score)
+
         for i in summary:
             if len(i) != 0:
                 self.summary.append(i)
@@ -168,7 +177,7 @@ class Person:
         if task == "move":
             prompt = generate_prompt("action", self, self.world)
             response = rag_generate_response(prompt,self)
-            index_insert(self, response)
+            # index_insert(self, response)
             action = response
             for i in action.split('\n'):
                 if "I will " in i:
@@ -186,7 +195,7 @@ class Person:
             
             prompt = generate_prompt("place", self, self.world)
             response = rag_generate_response(prompt, self)
-            index_insert(self, response)
+            # index_insert(self, response)
             place = response
             for building in self.world.town_areas.keys():
                 if building.lower() in place.lower():
@@ -204,12 +213,22 @@ class Person:
         if task == "if_chat":
             prompt = generate_prompt("if_chat", self, self.world)
             response = rag_generate_response(prompt, self)
+            try:
+                pattern = r"\b\d+\b"
+                # Search for all numeric values in the sentence
+                check_chat = int(re.findall(pattern, response)[0])
+                if check_chat >= 7:
+                    return True
+                return False
+            except:
+                return False
+            # Regular expression pattern to extract numeric value
+
+
             # index_insert(self, response)
-            check_chat = response
-            check_chat = np.float64(check_chat) if any(i.isdigit() for i in check_chat) else 0
-            if check_chat >= 7:
-                return True
-            return False
+            # check_chat = response
+            # check_chat = np.float64(check_chat) if any(i.isdigit() for i in check_chat) else 0
+
 
 
 

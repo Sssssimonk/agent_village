@@ -25,6 +25,15 @@ def rag_simulation(hours_to_run=4, continue_simulation=False):
 
     for _ in range(hours_to_run):
         place_dict = {}
+        if world.cur_time > 24: # end of the day
+            print("=== Today is over and a new day will begin soon. ===\n")
+            print("****************************")
+            for resident in world.residents:
+                world.residents[resident].rag_retrieve()  # summarize memory then reset it
+                world.cur_time = 8
+            
+            continue
+
         if world.cur_time == 8:  # start of the day
             # create daily plans
             for resident in world.residents:
@@ -36,14 +45,7 @@ def rag_simulation(hours_to_run=4, continue_simulation=False):
             print("****************************")
             print("Today is {}, it's {}.\n".format(world.date, world.weather))    
 
-        if world.cur_time > 23: # end of the day
-            print("=== Today is over and a new day will begin soon. ===\n")
-            print("****************************")
-            for resident in world.residents:
-                world.residents[resident].retrieve()  # summarize memory then reset it
-                world.cur_time = 8
-            
-            continue
+
 
         print("Current is on {}:00.".format(world.cur_time))
 
@@ -92,8 +94,8 @@ def rag_simulation(hours_to_run=4, continue_simulation=False):
 
 def run_simulation(hours_to_run=16, continue_simulation=False, rag=False):
     if rag == True:
-        rag_simulation(hours_to_run=hours_to_run, continue_simulation=continue_simulation)
-        return 
+        world = rag_simulation(hours_to_run=hours_to_run, continue_simulation=continue_simulation)
+        return world
     
     initialize_model('default')
     world, filename = check_continue_simulation(continue_simulation=continue_simulation)

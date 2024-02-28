@@ -11,7 +11,7 @@ Target Action: {}
 Date: {}
 Weather: {}
 
-<Instruction>: These people meet on Current Location, based on current Information Given, what is the probability of dialogue between Agent and target Agent? Must be an integer.
+<Instruction>: These people meet on Current Location, based on current Information Given, what is the probability of dialogue between Agent and target Agent? Use less than 5 words. Must be an integer.
 
 <Output format>:
 

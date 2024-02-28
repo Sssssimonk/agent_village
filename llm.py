@@ -15,8 +15,8 @@ from sentence_transformers import SentenceTransformer, util
 # Declare pipe and service_context as global variable, so that they can be accessed at later functions
 pipe = None 
 service_context = None 
-sentence_model = None
-
+#sentence_model = None
+global sentence_model
 quantization_config = BitsAndBytesConfig(
     load_in_4bit=True,
     bnb_4bit_compute_dtype=torch.bfloat16,
@@ -61,6 +61,9 @@ def initialize_model(mnemonics='default'):
     else:
         # ==================== Initialzied Llama-index ==================== # 
         global service_context
+        
+        sentence_model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
+
         hf_token = "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"
         llm = HuggingFaceLLM(
             model_name="meta-llama/Llama-2-7b-chat-hf",
