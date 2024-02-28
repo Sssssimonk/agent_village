@@ -1,6 +1,7 @@
 from llm import generate_prompt, generate_response, rag_generate_response, index_insert, calculate_memory_consistency
 import numpy as np
 import re
+import torch
 
 class Person:
 
@@ -162,6 +163,8 @@ class Person:
         score = calculate_memory_consistency(summary, plan)
 
         self.memory_consistency.append(score)
+
+        print("The Score for " + self.name + " is " + str(float(torch.flatten(i)[0])))
 
         for i in summary:
             if len(i) != 0:

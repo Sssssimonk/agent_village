@@ -65,11 +65,22 @@ def initialize_model(mnemonics='default'):
         sentence_model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
 
         hf_token = "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"
+        # llm = HuggingFaceLLM(
+        #     model_name="meta-llama/Llama-2-7b-chat-hf",
+        #     tokenizer_name="meta-llama/Llama-2-7b-chat-hf",
+        #     query_wrapper_prompt=PromptTemplate("<s> [INST] {query_str} [/INST] "),
+        #     context_window=3900,
+        #     model_kwargs={"token": hf_token, "quantization_config": quantization_config},
+        #     tokenizer_kwargs={"token": hf_token},
+        #     device_map="auto",
+        # )
+
         llm = HuggingFaceLLM(
+            context_window=10000,
+            max_new_tokens=350,
             model_name="meta-llama/Llama-2-7b-chat-hf",
             tokenizer_name="meta-llama/Llama-2-7b-chat-hf",
             query_wrapper_prompt=PromptTemplate("<s> [INST] {query_str} [/INST] "),
-            context_window=3900,
             model_kwargs={"token": hf_token, "quantization_config": quantization_config},
             tokenizer_kwargs={"token": hf_token},
             device_map="auto",
