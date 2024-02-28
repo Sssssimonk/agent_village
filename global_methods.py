@@ -7,18 +7,16 @@ def generate_simulation_filename():
     existing_files = glob.glob("simulation_*.pkl")
     max_number = 0
     for file in existing_files:
-        # Extracting the number from filenames like 'simulation_1.pkl' 
+        # Extracting the number from filenames like 'simulation_1.pkl'
         number = int(file.replace("simulation_", "").replace(".pkl", ""))
-        # find the newest simulation number
         if number > max_number:
             max_number = number
 
-    # create latest pickle file name
     new_number = max_number + 1
     return f"simulation_{new_number}.pkl"
 
 def select_simulation_file():
-    existing_files = glob.glob("simulation_*.pkl") #a list of .pkl file
+    existing_files = glob.glob("simulation_*.pkl")
     if not existing_files:
         print("No saved simulation found.")
         return None
@@ -26,7 +24,6 @@ def select_simulation_file():
     existing_files.sort(key=lambda x: int(re.search(r"simulation_(\d+)\.pkl", x).group(1)))
     
     while True:
-        print("Available files to load: ")
         for i, file in enumerate(existing_files, 1):
             print(f"{i}. {file}")
         choice = input("Select a simulation to load (number), or type 'exit' to start a new simulation: ")

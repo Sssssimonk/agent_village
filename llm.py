@@ -1,18 +1,20 @@
+from transformers import pipeline, AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig 
+import torch 
+
 import logging
 import sys
-from transformers import pipeline
-from transformers import AutoTokenizer, AutoModelForCausalLM
-import torch
-from transformers import BitsAndBytesConfig
 
-from llama_index import VectorStoreIndex, ServiceContext, Document
-from llama_index.llms import HuggingFaceLLM
-from llama_index.prompts import PromptTemplate
+from llama_index.core import VectorStoreIndex, ServiceContext, Document
+from llama_index.llms.huggingface import HuggingFaceLLM
+from llama_index.core import PromptTemplate
+
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+logging.getLogger().addHandler(logging.StreamHandler(stream=sys.stdout))
 
 from sentence_transformers import SentenceTransformer, util
 
 
-# Declare pipe and service_context as global variable, so that they can be accessed at later functions
+# ==================== Initialzied HF model ==================== # 
 pipe = None 
 service_context = None 
 sentence_model = None
@@ -57,23 +59,52 @@ def initialize_model(mnemonics='default'):
         """
 
         print("huggingface model initialized")
+service_context = None
+bnb_config = BitsAndBytesConfig(load_in_4bit=True,
+                                bnb_4bit_use_double_quant=True,
+                                bnb_4bit_quant_type="nf4",
+                                bnb_4bit_compute_dtype=torch.bfloat16
+)
 
-    else:
-        # ==================== Initialzied Llama-index ==================== # 
-        global service_context
-        hf_token = "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"
-        llm = HuggingFaceLLM(
-            model_name="meta-llama/Llama-2-7b-chat-hf",
-            tokenizer_name="meta-llama/Llama-2-7b-chat-hf",
-            query_wrapper_prompt=PromptTemplate("<s> [INST] {query_str} [/INST] "),
-            context_window=3900,
-            model_kwargs={"token": hf_token, "quantization_config": quantization_config},
-            tokenizer_kwargs={"token": hf_token},
-            device_map="auto",
-        )
+BASIC_TOKEN = "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"
+# MODEL_NAME = "lmsys/vicuna-7b-v1.5"
+# MODEL_NAME = "mistralai/Mistral-7B-v0.1"
+MODEL_NAME = "meta-llama/Llama-2-7b-chat-hf"
 
-        service_context = ServiceContext.from_defaults(llm=llm, embed_model="local:BAAI/bge-small-en-v1.5")
-        print("hf_RAG_model_initialized")
+
+def generate_model():
+    global pipe 
+    global service_context
+    tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME, 
+                                              token=BASIC_TOKEN
+                                             )
+    BASIC_MODEL = AutoModelForCausalLM.from_pretrained(MODEL_NAME,
+                                                 quantization_config=bnb_config,
+                                                 token=BASIC_TOKEN,
+                                                 device_map="auto"
+                                                )
+    
+    pipe = pipeline(task="text-generation",
+                    model=BASIC_MODEL, 
+                    tokenizer=tokenizer
+                    #PretrainedConfig = xxx
+                   )
+    print("hf_model_initialized")
+    
+    llm = HuggingFaceLLM(
+        context_window=4096,
+        max_new_tokens=256,
+        generate_kwargs={"temperature": 0.7, "do_sample": False},
+        model_name=MODEL_NAME,
+        tokenizer_name=MODEL_NAME,
+        query_wrapper_prompt=PromptTemplate("<|USER|>{query_str}<|ASSISTANT|>"),
+        model_kwargs={"token": BASIC_TOKEN, "quantization_config": bnb_config},
+        tokenizer_kwargs={"token": BASIC_TOKEN, "max_length": 4096},
+        device_map="auto",
+    )
+
+    service_context = ServiceContext.from_defaults(llm=llm, embed_model="local:BAAI/bge-small-en-v1.5")
+    print("llama_index_model_initialized")
 
 # initialize_model('rag')
 def calculate_memory_consistency(summary, plan):
@@ -84,11 +115,14 @@ def calculate_memory_consistency(summary, plan):
     return score
 
 
+generate_model()
 
 def generate_index(description):
     document = Document(text=description)
     index = VectorStoreIndex.from_documents([document], service_context=service_context)
     return index
+
+
 
 def generate_prompt(task, person, world):
     # from prompt file task.txt, read the prompt template and then out put a str prompt.
@@ -125,13 +159,11 @@ def generate_prompt(task, person, world):
         prompt = prompt.format(person.name, 
                                person.description, 
                                ", ".join(list(world.town_areas.keys())),
-                            #    "{} plan to {}".format(person.name.split(" ")[0], 
-                            #                           person.plan_lst["{}:00".format(world.cur_time)]),
                                plan_action,
                                world.cur_time
                               )
     
-    if task == "action":
+    if task == "move":
         before_action = ""
         if world.cur_time == 8:
             before_action = "I just wake up!"
@@ -140,17 +172,15 @@ def generate_prompt(task, person, world):
                 before_action = "\n".join(person.memory)
             else:
                 before_action = "\n".join(person.memory[-5:])
-
         plan_action = ""
         if "{}:00".format(world.cur_time) in person.plan_lst.keys():
             plan_action = person.plan_lst["{}:00".format(world.cur_time)]
         else:
             plan_action = before_action
-
+        
         prompt = prompt.format(person.name,
                                person.description,
                                person.location,
-                              # person.plan_lst["{}:00".format(world.cur_time)],
                                plan_action,
 #                                before_action,
                                world.cur_time)
@@ -213,18 +243,23 @@ def generate_prompt(task, person, world):
 
 
 def generate_response(prompt, max_new_tokens=100, min_new_tokens=50):
-    # given the prompt provided, create output from the pipeline
     response = pipe(prompt, max_new_tokens=max_new_tokens, min_new_tokens=min_new_tokens)[0]['generated_text']
-
     return response
 
-def rag_generate_response(prompt, person):
-    query_engine = person.index.as_query_engine() # use agent's index to create query_engine
+
+def generate_index(description):
+    document = Document(text=description)
+    index = VectorStoreIndex.from_documents([document], service_context=service_context)
+    return index
+
+def rag_response(prompt, person):
+    query_engine = person.index.as_query_engine() 
     response = query_engine.query(prompt)
 
-    return response.response
-
-def index_insert(person, response):
-    document = Document(text=response)
-    person.index.insert(document)
-
+    return response
+    
+    
+    
+    
+    
+    
