@@ -1,4 +1,4 @@
-from llm import generate_prompt, generate_response, rag_generate_response, index_insert, calculate_memory_consistency
+from llm import generate_prompt, generate_response, rag_generate_response, index_insert, calculate_memory_consistency, rag_response
 import numpy as np
 import re
 from compare import place_compare, action_compare
