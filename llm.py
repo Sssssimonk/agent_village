@@ -4,12 +4,16 @@ import torch
 import logging
 import sys
 
+from openai import OpenAI
+import os 
+import re
+
 from llama_index.core import VectorStoreIndex, ServiceContext, Document
 from llama_index.llms.huggingface import HuggingFaceLLM
 from llama_index.core import PromptTemplate
 
-logging.basicConfig(stream=sys.stdout, level=logging.INFO)
-logging.getLogger().addHandler(logging.StreamHandler(stream=sys.stdout))
+# logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+# logging.getLogger().addHandler(logging.StreamHandler(stream=sys.stdout))
 
 from sentence_transformers import SentenceTransformer, util
 
@@ -19,35 +23,37 @@ pipe = None
 service_context = None 
 sentence_model = None
 
-quantization_config = BitsAndBytesConfig(
+bnb_config = BitsAndBytesConfig(
     load_in_4bit=True,
     bnb_4bit_compute_dtype=torch.bfloat16,
     bnb_4bit_quant_type="nf4",
     bnb_4bit_use_double_quant=True,
 )
+BASIC_TOKEN = "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"
+# MODEL_NAME = "lmsys/vicuna-7b-v1.5"
+# MODEL_NAME = "mistralai/Mistral-7B-v0.1"
+MODEL_NAME = "meta-llama/Llama-2-7b-chat-hf"
 
-def initialize_model(mnemonics='default'):
-    if mnemonics == 'default':
-        # ==================== Initialzied HF model ==================== # 
-        global pipe
-        global sentence_model
+def initialize_model(method='default'):
+    global pipe 
+    global service_context
+    global sentence_model
 
-        access_token = "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"
-        model_id = "meta-llama/Llama-2-7b-chat-hf"
-        # model_id = "lmsys/vicuna-7b-v1.5"
-        # model_id = "mistralai/Mistral-7B-v0.1"
-        tokenizer = AutoTokenizer.from_pretrained(model_id, 
-                                                token=access_token)
-        model = AutoModelForCausalLM.from_pretrained(model_id,
-                                                    quantization_config=quantization_config,
-                                                    token=access_token,
-                                                    device_map="auto")
+    if method == 'default' or method=='both':
+
+        tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME, 
+                                                token=BASIC_TOKEN
+                                                )
+        BASIC_MODEL = AutoModelForCausalLM.from_pretrained(MODEL_NAME,
+                                                    quantization_config=bnb_config,
+                                                    token=BASIC_TOKEN,
+                                                    device_map="auto"
+                                                    )
         
         sentence_model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
         
-
         pipe = pipeline(task="text-generation", 
-                model=model, 
+                model=MODEL_NAME, 
                 tokenizer=tokenizer,
                 temperature=0.8, # default value is 0.6, high temp -> more randomness  
                 top_p = 0.95 # default value is 0.9, higher top_p -> more randomness
@@ -59,54 +65,27 @@ def initialize_model(mnemonics='default'):
         """
 
         print("huggingface model initialized")
-service_context = None
-bnb_config = BitsAndBytesConfig(load_in_4bit=True,
-                                bnb_4bit_use_double_quant=True,
-                                bnb_4bit_quant_type="nf4",
-                                bnb_4bit_compute_dtype=torch.bfloat16
-)
 
-BASIC_TOKEN = "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"
-# MODEL_NAME = "lmsys/vicuna-7b-v1.5"
-# MODEL_NAME = "mistralai/Mistral-7B-v0.1"
-MODEL_NAME = "meta-llama/Llama-2-7b-chat-hf"
+    elif method =='rag' or method == 'both':
+        llm = HuggingFaceLLM(
+            context_window=4096,
+            max_new_tokens=256,
+            generate_kwargs={"temperature": 0.7, "do_sample": False},
+            model_name=MODEL_NAME,
+            tokenizer_name=MODEL_NAME,
+            query_wrapper_prompt=PromptTemplate("<|USER|>{query_str}<|ASSISTANT|>"),
+            model_kwargs={"token": BASIC_TOKEN, "quantization_config": bnb_config},
+            tokenizer_kwargs={"token": BASIC_TOKEN, "max_length": 4096},
+            device_map="auto",
+        )
+
+        service_context = ServiceContext.from_defaults(llm=llm, embed_model="local:BAAI/bge-small-en-v1.5")
+        print("llama_index_model_initialized")
 
 
-def generate_model():
-    global pipe 
-    global service_context
-    tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME, 
-                                              token=BASIC_TOKEN
-                                             )
-    BASIC_MODEL = AutoModelForCausalLM.from_pretrained(MODEL_NAME,
-                                                 quantization_config=bnb_config,
-                                                 token=BASIC_TOKEN,
-                                                 device_map="auto"
-                                                )
-    
-    pipe = pipeline(task="text-generation",
-                    model=BASIC_MODEL, 
-                    tokenizer=tokenizer
-                    #PretrainedConfig = xxx
-                   )
-    print("hf_model_initialized")
-    
-    llm = HuggingFaceLLM(
-        context_window=4096,
-        max_new_tokens=256,
-        generate_kwargs={"temperature": 0.7, "do_sample": False},
-        model_name=MODEL_NAME,
-        tokenizer_name=MODEL_NAME,
-        query_wrapper_prompt=PromptTemplate("<|USER|>{query_str}<|ASSISTANT|>"),
-        model_kwargs={"token": BASIC_TOKEN, "quantization_config": bnb_config},
-        tokenizer_kwargs={"token": BASIC_TOKEN, "max_length": 4096},
-        device_map="auto",
-    )
-
-    service_context = ServiceContext.from_defaults(llm=llm, embed_model="local:BAAI/bge-small-en-v1.5")
-    print("llama_index_model_initialized")
-
+# initialize_model()
 # initialize_model('rag')
+        
 def calculate_memory_consistency(summary, plan):
 
     embedding_1= sentence_model.encode(summary, convert_to_tensor=True)
@@ -114,15 +93,10 @@ def calculate_memory_consistency(summary, plan):
     score = util.pytorch_cos_sim(embedding_1, embedding_2)#.tolist()[0][0]
     return score
 
-
-generate_model()
-
 def generate_index(description):
     document = Document(text=description)
     index = VectorStoreIndex.from_documents([document], service_context=service_context)
     return index
-
-
 
 def generate_prompt(task, person, world):
     # from prompt file task.txt, read the prompt template and then out put a str prompt.
@@ -258,7 +232,33 @@ def rag_response(prompt, person):
 
     return response
     
+
+def rate_plan(plan1, plan2):
+    client = OpenAI(api_key="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")
+    system = {"role": "system", "content": "You are a useful assistant. \
+              You will rate a person's 24 hour plan from 1 to 100 based on the personal description. "}
+    format = """
+            The answer should be in this format: 
+            the rating for plan1: 
+            the rating for plan2:
+
+            reasons:
+            """
+    user = {"role": "user", "content": plan1+ plan2+rule}
+
+    completion = client.chat.completions.create(model="gpt-3.5-turbo",
+                                                messages=[system, user]
+                                                )
+    output = str(completion.choices[0].message)
+    pattern = r'(?<=: )\d+'
+    scores = re.findall(pattern, output)
+
+    return scores # a list of str (each str is the score for the plan)
+
     
+    
+    
+
     
     
     

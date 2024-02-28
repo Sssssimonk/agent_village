@@ -44,6 +44,7 @@ def if_meet(world, place_dict):
     
 
 def run_simulation(hours_to_run=4, continue_simulation=False):
+    #initialize_model('both')
     world, filename = check_continue_simulation(continue_simulation=continue_simulation)
 
     for _ in range(hours_to_run):
