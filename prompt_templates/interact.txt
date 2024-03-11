@@ -1,0 +1,9 @@
+<Information Given>
+
+Agents List: {}
+Content: {}
+
+<Instruction>: Will these people from Agents List be interacting with other agents or have a conversation with other agents? yes or no. Be brief, and use at most 1 words and answer from your perspective.
+
+
+<Output>:

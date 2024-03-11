@@ -3,13 +3,11 @@
 Agent: {}
 Discription: {}
 Town Areas: {}
+Town Areas Discription: {}
 Current Plan: {}
 Current Time: {}
 
-<Instruction>: Based on current <Information Given>, which one is the ONLY most suitable for Agent plan to Current Plan from the fellowing Town Areas? Be brief, and use at most 3 words and answer from your perspective.
+<Instruction>: Based on current <Information Given>, which one is the ONLY most suitable for Agent plan to Current Plan from the fellowing Town Areas? Be brief, and use at most 2 words and answer from your perspective.
 
-<Output format>:
-
-Coffee Shop, School, etc.
 
 <Output>:

@@ -1,237 +1,245 @@
-from llm import generate_prompt, generate_response, rag_generate_response, index_insert, calculate_memory_consistency
+from llm import generate_prompt, generate_response, rag_response
 import numpy as np
+import pandas as pd
 import re
-import torch
+from compare import place_compare, action_compare, calculate_memory_consistency
+import emojis
+import emoji
+
+def extract_emojis(s):
+      return ''.join(c for c in s if c not in emoji.EMOJI_DATA)
+    
+def get_emoji(text):
+    dic = {}
+    for i in text.split('\n'):
+        if ":00" in i:
+            key = i.split(":00")[0].split(" ")[-1]
+            value = ''.join(c for c in i if c in emoji.EMOJI_DATA)
+            if (key in dic.keys()) or (int(key) <= 7):
+                key = str(int(key) + 12 )
+            dic[key] = value
+    return dic
+
+def last_steps(person):
+    if "{}:00".format(person.world.cur_time) in person.plan_lst.keys():
+        return "I plan to{} at {}".format(person.plan_lst["{}:00".format(person.world.cur_time)],
+                                           "{}:00".format(person.world.cur_time)
+                                          )
+    else:
+        return person.memory[-1].replace("I plan to", "I already")
+
+def pd_merge(basic, rag):
+    dic = {}
+    dic["basic"] = get_emoji(basic)
+    dic["rag"] = get_emoji(rag)
+    result = pd.DataFrame(dic)
+    return result
 
 class Person:
 
     def __init__(self, name, description, personality, world) -> None:
         self.name = name
         self.description = description
+        self.special_event = None
+        
+        self.basic_memory = []
+        self.rag_memory = []
         self.memory = []
-        self.location = "Town Square"
+        
+        self.location = "Housing Area"
         self.personality = personality
+
         self.world = world
         self.daily_plan = None
         self.plan_lst = {}
-        self.meet = []
         self.summary = []
         self.index = None
-
-        self.memory_consistency = []
-
-
-    def perceive(self, world):
-        # perceive current environment and memorize into memory
-        pass 
-    
-    def other_meet(self, agents):
-        meet_agent = [self.world.residents[index].name for index in agents]
-        meet_agent.remove(self.name)
-        self.memory[-1] += " I see {} on {}.".format(", ".join(meet_agent), self.location)
+       
+        
+        
+    def get_plan(self):
+        current_time = "{}:00".format(self.world.cur_time)
+        introduction = "{} is {}. ".format(self.name, self.personality)
+        if current_time in self.plan_lst.keys():
+            return "{}{} plan to{} on {}.".format(introduction, 
+                                                   self.name, 
+                                                   self.plan_lst[current_time], 
+                                                   current_time)
+        else:
+            return introduction + self.memory[-1]
 
     def plan(self):
         # create daily plan whenever the new day starts
         prompt = generate_prompt("daily_plan", self, self.world)
-        response = generate_response(prompt, max_new_tokens=500, min_new_tokens=100)
-        
+        response = generate_response(prompt, max_new_tokens=1000, min_new_tokens=100)
+        rag_respones = rag_response(prompt, self)
+        rag_respones = str(rag_respones)
         
         daily_plan = response.split("<Output>:")[1]     # delete prompt template provided
-        self.daily_plan = daily_plan
         
-        for plan_value in self.daily_plan.split('\n'):
-            if " - " in plan_value:
-                key = plan_value.split(":")[0]
-                value = plan_value.split(" - ")[1].lower()
+#         print("basic: \n", daily_plan, "\nrag:\n", rag_respones)
+#         print("{}'s daily plan compare list between baisc model and rag model: ".format(self.name.split(" ")[0]))
+#         print(pd_merge(daily_plan, rag_respones))
+        
+        
+        ### This part will compare the result between basic model and rag model, the best one will be use
+        if self.special_event == None:
+            sentence_1_result = calculate_memory_consistency(self.description, extract_emojis(daily_plan))
+            sentence_2_result = calculate_memory_consistency(self.description, extract_emojis(rag_respones))
+        else:
+            special_event = "I plan to " + self.special_event + " Today."
+            sentence_1_result = calculate_memory_consistency(special_event, extract_emojis(daily_plan))
+            sentence_2_result = calculate_memory_consistency(special_event, extract_emojis(rag_respones))
+        
+        self.world.results['plan']['basic_model'].append(sentence_1_result)
+        self.world.results['plan']['rag_model'].append(sentence_2_result)
+        
+        if sentence_1_result > sentence_2_result:
+            print("The Basic Model is more better!")
+            self.daily_plan = extract_emojis(daily_plan)
+            self.world.results["frequency"].append("basic")
+        
+        else:
+            print("The RAG Model is more better!")
+            self.daily_plan = extract_emojis(rag_respones)
+            self.world.results["frequency"].append("rag")
+        
+        for text in self.daily_plan.split('\n'):
+            plan_value = extract_emojis(text)
+
+            if ":00 " in text:
+                key = plan_value.split(":00 ")[0].split(" ")[-1]
+                value = plan_value.split(":00 ")[1].lower().replace("-", "")
+                value = extract_emojis(value)
+                
+                if (key in self.plan_lst.keys()) or (int(key) <= 7):
+                    key = str(int(key) + 12 )   
                 self.plan_lst["{}:00".format(key)] = value
                 
-                if "23:00" in self.plan_lst.keys():
+                if not key.isnumeric():
                     break
-        
-
-#         print("The daily plan for " + self.name + " is : " + self.daily_plan)
-
+    
     def retrieve(self):
-        print(self.name + " is summarizing today's memory")
-        # summarize today's memory, add to seld.summary, clear memory
-        prompt = generate_prompt("summarize_action", self, self.world)
+        prompt = generate_prompt("summary_memory", self, self.world)
         response = generate_response(prompt, max_new_tokens=200, min_new_tokens=50)
-
-        summary = response.split("<Output>:")[1]   #.split('\n')
-
-        plan = str(self.plan_lst).replace("'","")
-        self.memory_consistency.append(calculate_memory_consistency(summary, plan))
-
+        rag_respones = rag_response(prompt, self)
+        summary = response.split("<Output>:")[1].split('\n')
+        
+        basic_summary = ""
         for i in summary:
             if len(i) != 0:
-                self.summary.append(i)
+                basic_summary = i
                 break
+        
+        summary_1_result = calculate_memory_consistency(self.daily_plan, basic_summary)
+        summary_2_result = calculate_memory_consistency(self.daily_plan, rag_respones)
+        
+        self.world.results['summary']['basic_model'].append(summary_1_result)
+        self.world.results['summary']['rag_model'].append(summary_2_result)
+        if summary_1_result > summary_2_result:
+            self.world.results["frequency"].append("basic")
+            self.summary.append(basic_summary)
+            
+        else:
+            self.world.results["frequency"].append("rag")
+            self.summary.append(rag_summary)
         
         self.daily_plan = None
         self.plan_lst = {}
-        self.meet = []
         self.memory = []
-        
-        
 
-    def reflect(self):
-        # TODO: process memory, remove anything useless
-        pass 
 
     def action(self, task="move"):
-
         if task == "move":
+            if "{}:00".format(self.world.cur_time) not in list(self.plan_lst.keys()):
+                last_plan_time = self.memory[-1].split(":00")[0].split(" ")[0]
+                last_memory = self.memory[-1].replace(str(last_plan_time), str(self.world.cur_time))
+                last_memory = self.memory[-1].replace("I plan to", "I already")
+                self.memory.append(last_memory)
+                return 
+            
             prompt = generate_prompt("action", self, self.world)
             response = generate_response(prompt, max_new_tokens=500, min_new_tokens=10)
+            rag_respones = rag_response(prompt, self)
+
             action = response.split("<Output>:")[1]  # delete prompt template provided
             for i in action.split('\n'):
                 if "I will " in i:
                     action = i
-                    break
-            self.memory.append("At {}:00, I am {} on {}. {}".format(self.world.cur_time,
-                                                                    self.name,
-                                                                    self.location,
-                                                                    action
-                                                                   ))
-            
-            # print("The action for " + self.name + "is : " + response)
+                    break      
 
-        if task == "place": # generate a location in the town areas
+            plan_action = last_steps(self)
+            rag_respones = str(rag_respones)
+            
+            basic_result = calculate_memory_consistency(plan_action, action)
+            rag_result = calculate_memory_consistency(plan_action, rag_respones)
+            
+            self.world.results['points']['basic_model'].append(basic_result)
+            self.world.results['points']['rag_model'].append(rag_result)
+            
+            basic_action = "At {}:00, I am {} on {} and I plan to{}. {}".format(self.world.cur_time,
+                                                              self.name,
+                                                              self.location,
+                                                              self.plan_lst["{}:00".format(self.world.cur_time)],
+                                                              action
+                                                             )
+            
+            rag_action = "At {}:00, I am {} on {} and I plan to{}. {}".format(self.world.cur_time,
+                                                              self.name,
+                                                              self.location,
+                                                              self.plan_lst["{}:00".format(self.world.cur_time)],
+                                                              rag_respones
+                                                             )
+            self.basic_memory.append(basic_action)
+            self.rag_memory.append(rag_action)
+            
+            if basic_result > rag_result:
+                self.memory.append(basic_action)
+                self.world.results["frequency"].append("basic")
+
+            else:
+                self.memory.append(rag_action)
+                self.world.results["frequency"].append("rag")
+
+        
+        if task == "place":
+            if "{}:00".format(self.world.cur_time) not in list(self.plan_lst.keys()):
+                return self.location
             
             prompt = generate_prompt("place", self, self.world)
             response = generate_response(prompt, max_new_tokens=10, min_new_tokens=1)
+            rag_respones = rag_response(prompt, self)
+            
             place = response.split("<Output>:")[1]
+            rag_str_respones = str(rag_respones)
+            
             for building in self.world.town_areas.keys():
                 if building.lower() in place.lower():
-                    self.location = building
-                    break
-            
-        if task == "chat":
-            prompt = generate_prompt("chat", self, self.world)
-            response = generate_response(prompt, max_new_tokens=500, min_new_tokens=100)
-            chat = response.split("<Output>:")[1]
-            chat_result = chat.split('\n<')[0].replace('\n\n', '\n')
-            return re.sub(r'\n\n+', '', chat_result)
-        
-        if task == "if_chat":
-            prompt = generate_prompt("if_chat", self, self.world)
-            response = generate_response(prompt, max_new_tokens=5, min_new_tokens=1)
-            check_chat = response.split("<Output>:")[1]
-            check_chat = np.float64(check_chat) if any(i.isdigit() for i in check_chat) else 0
-            if check_chat >= 7:
-                return True
-            return False
-        
-
-# ===================================== Agent action with RAG ======================================#
-
-    def rag_plan(self):
-        prompt = generate_prompt("daily_plan", self, self.world)
-        response = rag_generate_response(prompt, self)
-
-        index_insert(self, response) # insert the generated document back to index
-        self.daily_plan = response 
-
-        for plan_value in self.daily_plan.split('\n'):
-            if " - " in plan_value:
-                key = plan_value.split(":")[0]
-                value = plan_value.split(" - ")[1].lower()
-                self.plan_lst["{}:00".format(key)] = value
+                    place = building
                 
-                if "23:00" in self.plan_lst.keys():
-                    break
-
-        # print("RAG response is + : " + response)
-        # daily_plan = response.split("<Output>:")[1]     
-        # self.daily_plan = daily_plan
-
-
-
-
-    def rag_retrieve(self):
-        # summarize today's memory, add to seld.summary, clear memory
-        print(self.name + " is summarizing today's memory")
-        prompt = generate_prompt("summarize_action", self, self.world)
-        response = rag_generate_response(prompt, self)
-
-        index_insert(self, response)
-        summary = response
-        plan = str(self.plan_lst).replace("'","")
-
-        # print(summary)
-        # print(plan)
-        score = calculate_memory_consistency(summary, plan)
-
-        self.memory_consistency.append(score)
-
-        print("The Score for " + self.name + " is " + str(float(torch.flatten(i)[0])))
-
-        for i in summary:
-            if len(i) != 0:
-                self.summary.append(i)
-                break
-        
-        self.daily_plan = None
-        self.plan_lst = {}
-        self.meet = []
-        self.memory = []
-
-    def rag_action(self, task="move"):
-        if task == "move":
-            prompt = generate_prompt("action", self, self.world)
-            response = rag_generate_response(prompt,self)
-            # index_insert(self, response)
-            action = response
-            for i in action.split('\n'):
-                if "I will " in i:
-                    action = i
-                    break
-            self.memory.append("At {}:00, I am {} on {}. {}".format(self.world.cur_time,
-                                                                    self.name,
-                                                                    self.location,
-                                                                    action
-                                                                   ))
+                if building.lower() in rag_str_respones.lower():
+                    rag_str_respones = building
             
-            # print("The action for " + self.name + "is : " + response)
+            print(rag_str_respones, place)
+            if place not in list(self.world.town_areas.keys()):
+                place = "Housing Area"
+                
+            if rag_str_respones not in list(self.world.town_areas.keys()):
+                rag_str_respones = "Housing Area"
 
-        if task == "place": # generate a location in the town areas
-            
-            prompt = generate_prompt("place", self, self.world)
-            response = rag_generate_response(prompt, self)
-            # index_insert(self, response)
-            place = response
-            for building in self.world.town_areas.keys():
-                if building.lower() in place.lower():
-                    self.location = building
-                    break
-            
-        if task == "chat":
-            prompt = generate_prompt("chat", self, self.world)
-            response = rag_generate_response(prompt, self)
-            index_insert(self, response)
-            chat = response
-            chat_result = chat.split('\n<')[0].replace('\n\n', '\n')
-            return re.sub(r'\n\n+', '', chat_result)
-        
-        if task == "if_chat":
-            prompt = generate_prompt("if_chat", self, self.world)
-            response = rag_generate_response(prompt, self)
-            try:
-                pattern = r"\b\d+\b"
-                # Search for all numeric values in the sentence
-                check_chat = int(re.findall(pattern, response)[0])
-                if check_chat >= 7:
-                    return True
-                return False
-            except:
-                return False
-            # Regular expression pattern to extract numeric value
-
-
-            # index_insert(self, response)
-            # check_chat = response
-            # check_chat = np.float64(check_chat) if any(i.isdigit() for i in check_chat) else 0
-
+            if rag_str_respones == place:
+                self.location = rag_str_respones
+            else:
+                action_check = last_steps(self)
+                
+                compare_result = place_compare(place, rag_str_respones, action_check)
+                if compare_result == "rag":
+                    self.location = rag_str_respones
+                else:
+                    self.location = place
+                
+                self.world.results['frequency'].append(compare_result)
+            return self.location
 
 
 

@@ -1,17 +1,9 @@
 <Information Given>
 
-Name: {}
-Discription: {}
-Current Location: {}
-Current Plan: {}
+Agents List: {}
+Content: {}
 
-Current Time : {}
+<Instruction>: What will these people from Agents List have a conversation with other agents? Show the all conversation.
 
-<Instruction>: Based on Current Plan, decide what to do or where to go for the next hour. Use first-person perspective
-
-<Output format>:
-
-I will xxx
 
 <Output>:
-

@@ -1,0 +1,12 @@
+<Information Given>
+
+Agents List: {}
+Current Location: {}
+Current Time : {}
+Agents Plan: {}
+Date: {}
+Weather: {}
+
+<Instruction>: These people from Agents List are on Current Location at Current Time. Based on the <Information Given>, How will these agents from Agents List execute their plans and do other things at this location over the next 60 minutes? What interactions will these agents from Agents List have with other agents? Be brief, use at least 50 words and answer from your perspective and different agents do not use same paragraph to show.
+
+<Output>:
