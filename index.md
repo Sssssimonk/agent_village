@@ -30,9 +30,8 @@ In our simulation, we compared the memory consistency of agents with basic memor
 From the plot we discovered that: **Agents with RAG memory(dashed line) has higher memory consistency**, suggesting that they stick closer to their daily plans, which indicates that RAG memory structures may offer more reliable performance.  
 
 Check out the chart below to see the daily memory consistency levels of each agent. Higher values indicate better consistency and alignment with planned actions.
-<p align="center">
-  <img src="/docs/memory_consistency.png" alt="Memory Consistency" width="110%">
-</p>
+
+![Memory Consistency](/docs/memory_consistency.png)
 
 ### Difference in Plans
 Our generative agents are scored on their planning abilities, and the results highlights the sophisticated capabilities of agents with RAG structure.  
@@ -40,15 +39,13 @@ Our generative agents are scored on their planning abilities, and the results hi
 **ChatGPT-4 Overall Evaluation Score:**
 * Basic Agent: 71/100, reflecting decent planning.
 * RAG Agent: 91/100, r4eflecing strategic and adaptable planning.
-<p align="center">
-  <img src="/docs/plan_score.jpg" alt="Plan Score" width="70%">
-</p>
+
+![Plan Score](/docs/plan_score.jpg)
 
 
 When we introduced additional details about our agents' preferences and goals, the RAG system demonstrated its **adaptability**. For instance, when we mentioned that Tom, our dedicated teacher agent, wanted to explore the world and consider a career change, the RAG agent adjusted Tom's daily schedule to include actions like discussing a career break planning a trip, and writing farewell letters to students.
-<p align="center">
-  <img src="/docs/extra_description.jpg" alt="Extra Description" width="70%">
-</p>
+
+![Extra Description](/docs/extra_description.jpg)
 
 The contrasting scores and the RAG's responsiveness to extra description underline the potential of RAG, in creating agents that can think ahead and adjust to new circumstances, much like humans do. This insightful comparison reinforces the value of sophisticated RAG memory structures in developing agents that are **not just reactive, but truly responsive to their environment.**
 
