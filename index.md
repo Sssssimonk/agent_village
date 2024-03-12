@@ -1,5 +1,5 @@
 ---
-title: "AI Town: A Virtual Environment for Interaction Between Generative Agents"
+title: "Leveraging RAG for enhancing AI Interactions in Generative Agents"
 ---
 
 ### Authors: Siyu Chen, Yexiaolu He, Jinxin Xiao, Celine Zhao
@@ -25,7 +25,32 @@ Llama2 comes with a standard memory setup, where the model's internal state acts
 Llama Index for RAG introduces a dynamic external memory component to the conventional Llama2 setup. The RAG structure enables the model to query an extensive external knowledge  base in real-time, augmenting the agent's responses with information retrieved from the external database. The RAG model interacts with the Llama Index, an extensive database of information that can be contextually searched during an agent's decision-making process. The approach brings inclusion for up-to-date and relevant data information that may not be presented in the original training set. Agents equipped with the RAG memory structure can access a wider range of information beyond their internal knowledge base, which enables more nuanced and informed interaction as agents can pull relevant data from the Llama Index to generate responses and make decisions.
 
 # Results
-![Memory Consistency](/docs/assets/memory_consistency.png)
+### Memory Consistency
+In our simulation, we compared the memory consistency of agents with basic memory structure (memory that is a list) and agents implemented with RAG. Over the course of seven days, agents 'Tom' and 'Jack' show us how well they can stick to their daily plans.  
+From the plot we discovered that: **Agents with RAG memory(dashed line) has higher memory consistency**, suggesting that they stick closer to their daily plans, which indicates that RAG memory structures may offer more reliable performance.  
+
+Check out the chart below to see the daily memory consistency levels of each agent. Higher values indicate better consistency and alignment with planned actions.
+<p align="center">
+  <img src="/docs/memory_consistency.png" alt="Memory Consistency" width="110%">
+</p>
+
+### Difference in Plans
+Our generative agents are scored on their planning abilities, and the results highlights the sophisticated capabilities of agents with RAG structure.  
+
+**ChatGPT-4 Overall Evaluation Score:**
+* Basic Agent: 71/100, reflecting decent planning.
+* RAG Agent: 91/100, r4eflecing strategic and adaptable planning.
+<p align="center">
+  <img src="/docs/plan_score.jpg" alt="Plan Score" width="70%">
+</p>
+
+
+When we introduced additional details about our agents' preferences and goals, the RAG system demonstrated its **adaptability**. For instance, when we mentioned that Tom, our dedicated teacher agent, wanted to explore the world and consider a career change, the RAG agent adjusted Tom's daily schedule to include actions like discussing a career break planning a trip, and writing farewell letters to students.
+<p align="center">
+  <img src="/docs/extra_description.jpg" alt="Extra Description" width="70%">
+</p>
+
+The contrasting scores and the RAG's responsiveness to extra description underline the potential of RAG, in creating agents that can think ahead and adjust to new circumstances, much like humans do. This insightful comparison reinforces the value of sophisticated RAG memory structures in developing agents that are **not just reactive, but truly responsive to their environment.**
 
 # Conclusion
 The comparative analysis conducted in our simulated environment, agent village, provides compelling evidence of the efficacy of Retrieval-Augmented Generation (RAG) as a superior memory structure for generative agents throughout a three-day simulation, where both RAG and standard model ran. The RAG-equipped agents not only sustained a steady memory consistency but also showed an upward trend, suggesting a learning curve where the agents improved their memory coherence over time. Conversely, basic agents experienced a gradual decline in memory consistency. This outcome highlights the limitations of a static knowledge base in dynamic scenarios. In conclusion, these findings underscore the potential of RAG structures in enhancing the reliability of interactions in AI-driven simulations and virtual environments.
