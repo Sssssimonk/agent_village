@@ -11,11 +11,13 @@ from llama_index.core import VectorStoreIndex, SimpleDirectoryReader, ServiceCon
 from llama_index.llms.huggingface import HuggingFaceLLM
 from llama_index.core import PromptTemplate
 
+from sentence_transformers import SentenceTransformer, util
 
 
 # ==================== Initialzied HF model ==================== # 
 basic_llama = None 
 llama_index = None
+sentence_model = None
 bnb_config = BitsAndBytesConfig(load_in_4bit=True,
                                 bnb_4bit_use_double_quant=True,
                                 bnb_4bit_quant_type="nf4",
@@ -60,10 +62,12 @@ def generate_model():
 
     service_context = ServiceContext.from_defaults(llm=llm, embed_model="local:BAAI/bge-small-en-v1.5")
     print("llama_index_model_initialized")
-    return pipe, service_context
+    
+    sentence_model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
+    return pipe, service_context, sentence_model
 
 
-basic_llama, llama_index = generate_model()
+basic_llama, llama_index, sentence_model = generate_model()
 
 def generate_prompt(task, person, world):
     # from prompt file task.txt, read the prompt template and then out put a str prompt.
@@ -179,6 +183,19 @@ def rag_response(prompt, person):
 
     return response
     
+    
+def calculate_memory_consistency(summary, plan):
+    """
+    Compare text based on similarity and then choose the best 
+    result between normal and RAG models.
+    
+    RETURNS:
+        float number
+    """
+    embedding_1= sentence_model.encode(summary, convert_to_tensor=True)
+    embedding_2 = sentence_model.encode(plan, convert_to_tensor=True)
+    score = util.pytorch_cos_sim(embedding_1, embedding_2).tolist()[0][0]
+    return score
     
     
     

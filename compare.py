@@ -2,12 +2,12 @@ import json
 import jieba            
 import numpy as np
 from collections import Counter
-from sentence_transformers import SentenceTransformer, util
+# from sentence_transformers import SentenceTransformer, util
 from gensim import corpora, models, similarities
 from collections import defaultdict
+# sentence_model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
 
 stopwords = {}.fromkeys([',', '.', ';',':'])
-sentence_model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
 
 with open("world_settings.json", "r") as json_file:
     data = json.load(json_file)
@@ -89,18 +89,18 @@ def action_compare(llama_2_action, llama_index_action, plan):
         return "rag", llama_index_action
     
     
-def calculate_memory_consistency(summary, plan):
-    """
-    Compare text based on similarity and then choose the best 
-    result between normal and RAG models.
+# def calculate_memory_consistency(summary, plan):
+#     """
+#     Compare text based on similarity and then choose the best 
+#     result between normal and RAG models.
     
-    RETURNS:
-        float number
-    """
-    embedding_1= sentence_model.encode(summary, convert_to_tensor=True)
-    embedding_2 = sentence_model.encode(plan, convert_to_tensor=True)
-    score = util.pytorch_cos_sim(embedding_1, embedding_2).tolist()[0][0]
-    return score
+#     RETURNS:
+#         float number
+#     """
+#     embedding_1= sentence_model.encode(summary, convert_to_tensor=True)
+#     embedding_2 = sentence_model.encode(plan, convert_to_tensor=True)
+#     score = util.pytorch_cos_sim(embedding_1, embedding_2).tolist()[0][0]
+#     return score
 
     
     

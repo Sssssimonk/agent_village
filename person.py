@@ -1,8 +1,8 @@
-from llm import generate_prompt, generate_response, rag_response
+from llm import generate_prompt, generate_response, rag_response, calculate_memory_consistency
 import numpy as np
 import pandas as pd
 import re
-from compare import place_compare, action_compare, calculate_memory_consistency
+from compare import place_compare, action_compare
 import emoji
 
 def get_emoji(text):
@@ -12,7 +12,7 @@ def get_emoji(text):
     
     Args:
         text: Text containing emoji and text
-    RETURNS:
+    RETURNS：
         emoji
     """
     dic = {}
@@ -30,7 +30,7 @@ def extract_emojis(s):
     delete emoji on text
     Args:
         text: Text containing emoji and text
-    RETURNS:
+    RETURNS：
         text that do not contains emoji
     """
     return ''.join(c for c in s if c not in emoji.EMOJI_DATA)
@@ -123,12 +123,12 @@ class Person:
         self.world.plan["{}'s rag plan".format(self.name.split(" ")[0])] = get_emoji(rag_respones)
         
         if sentence_1_result > sentence_2_result:
-            print("The Basic Model is more better!")
+            print("For {}'s Daily Plan, the Basic Model is more better!".format(self.name))
             self.daily_plan = extract_emojis(daily_plan)
             self.world.results["frequency"].append("basic")
         
         else:
-            print("The RAG Model is more better!")
+            print("For {}'s Daily Plan, the RAG Model is more better!".format(self.name))
             self.daily_plan = extract_emojis(rag_respones)
             self.world.results["frequency"].append("rag")
         ### Convert string format to dictionary mode
@@ -144,7 +144,7 @@ class Person:
                     key = str(int(key) + 12 )   
                 self.plan_lst["{}:00".format(key)] = value
                 
-                if not key.isnumeric():
+                if (not key.isnumeric()) or (int(key) > 23):
                     break
     
     def retrieve(self):

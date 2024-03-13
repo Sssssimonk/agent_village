@@ -5,7 +5,7 @@ import sys
 import pandas as pd
 import matplotlib.pyplot as plt
 
-def plot_data(world):
+def plot_data(world, hours_to_run):
     """
     When the technology is run on this project, drawings will 
     be made based on the generated data to compare the differences 
@@ -18,35 +18,44 @@ def plot_data(world):
                       'rag': world.results['frequency'].count("rag")}
     names = list(frequency_data.keys())
     values = list(frequency_data.values())
-    
-    print("This time, we use total {} times, {} is RAG model, {} is basic model.".format(len(world.results['frequency']),
-                                                                                         frequency_data['rag'],
-                                                                                         frequency_data['basic']
-                                                                                        ))
+    summary = "In this time, the project run total {} hours, we have {} agents.".format(hours_to_run, len(world.residents))
+    print("This time, we use total {} times by RAG and normal model, {} is RAG model, {} is basic model.".format(
+        len(world.results['frequency']),
+        frequency_data['rag'],
+        frequency_data['basic']
+    ))
     plt.bar(range(len(frequency_data)), values, tick_label=names)
     plt.show()
     
     print("This is points compare for daily action by generate text between RAG model and basic mdoel.")
+    print(pd.DataFrame(world.results['points']).describe())
     a = np.array(world.results['points']["rag_model"])
     b = np.array(world.results['points']["basic_model"])
     plt.plot(a, label="RAG model")
     plt.plot(b, label="basic mdoel")
+    plt.legend(loc='best')
     plt.show()
     
+    
     print("This is points compare for daily plan by generate text between RAG model and basic mdoel.")
+    print(pd.DataFrame(world.results['plan']).describe())
     a = np.array(world.results['plan']["rag_model"])
     b = np.array(world.results['plan']["basic_model"])
     plt.plot(a, label="RAG model")
     plt.plot(b, label="basic mdoel")
+    plt.legend(loc='best')
     plt.show()
     
     if len(world.results['summary']['basic_model']) != 0 and len(world.results['summary']['rag_model']) != 0:
         print("This is points compare for daily summary by generate text between RAG model and basic mdoel.")
+        print(pd.DataFrame(world.results['summary']).describe())
         a = np.array(world.results['summary']["rag_model"])
         b = np.array(world.results['summary']["basic_model"])
         plt.plot(a, label="RAG model")
         plt.plot(b, label="basic mdoel")
+        plt.legend(loc='best')
         plt.show()
+        
 
 def check_continue_simulation(continue_simulation=False):
     """
@@ -138,7 +147,7 @@ def run_simulation(hours_to_run=4, continue_simulation=False):
         world.cur_time += 1
         save_simulation_state(world, filename) # save state at the end of each hour
     
-    plot_data(world)
+    plot_data(world, hours_to_run)
     return world
 
 
