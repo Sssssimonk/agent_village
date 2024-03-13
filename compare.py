@@ -90,7 +90,7 @@ def action_compare(llama_2_action, llama_index_action, plan):
     
     
 def calculate_memory_consistency(summary, plan):
-     """
+    """
     Compare text based on similarity and then choose the best 
     result between normal and RAG models.
     
