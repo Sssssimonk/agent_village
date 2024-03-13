@@ -2,8 +2,56 @@ from person import *
 from world import *
 from global_methods import *
 import sys
+import pandas as pd
+import matplotlib.pyplot as plt
+
+def plot_data(world):
+    """
+    When the technology is run on this project, drawings will 
+    be made based on the generated data to compare the differences 
+    between the ordinary model and the RAG model.
+    
+    Args:
+        world: environment
+    """
+    frequency_data = {'basic': world.results['frequency'].count("basic"), 
+                      'rag': world.results['frequency'].count("rag")}
+    names = list(frequency_data.keys())
+    values = list(frequency_data.values())
+    
+    print("This time, we use total {} times, {} is RAG model, {} is basic model.".format(len(world.results['frequency']),
+                                                                                         frequency_data['rag'],
+                                                                                         frequency_data['basic']
+                                                                                        ))
+    plt.bar(range(len(frequency_data)), values, tick_label=names)
+    plt.show()
+    
+    print("This is points compare for daily action by generate text between RAG model and basic mdoel.")
+    a = np.array(world.results['points']["rag_model"])
+    b = np.array(world.results['points']["basic_model"])
+    plt.plot(a, label="RAG model")
+    plt.plot(b, label="basic mdoel")
+    plt.show()
+    
+    print("This is points compare for daily plan by generate text between RAG model and basic mdoel.")
+    a = np.array(world.results['plan']["rag_model"])
+    b = np.array(world.results['plan']["basic_model"])
+    plt.plot(a, label="RAG model")
+    plt.plot(b, label="basic mdoel")
+    plt.show()
+    
+    if len(world.results['summary']['basic_model']) != 0 and len(world.results['summary']['rag_model']) != 0:
+        print("This is points compare for daily summary by generate text between RAG model and basic mdoel.")
+        a = np.array(world.results['summary']["rag_model"])
+        b = np.array(world.results['summary']["basic_model"])
+        plt.plot(a, label="RAG model")
+        plt.plot(b, label="basic mdoel")
+        plt.show()
 
 def check_continue_simulation(continue_simulation=False):
+    """
+    Determine whether you need to use the new environment or use the old environment
+    """
     if not continue_simulation:
         filename = generate_simulation_filename() #Generate unique file name for new simulation
         world = World() #Initialize new world and agents
@@ -19,7 +67,10 @@ def check_continue_simulation(continue_simulation=False):
     return world, filename
 
 def if_meet(world, place_dict):
-    
+    """
+    Check the number of people in a location and generate new action 
+    patterns based on the number of people
+    """
     for key_place, value_agent in place_dict.items():
         if len(value_agent) == 1: # if current place only have one agent, agent will do its own action
             agent = value_agent[0]
@@ -47,23 +98,24 @@ def run_simulation(hours_to_run=4, continue_simulation=False):
         
         if world.cur_time == 8:
             world.reset_date()
-#             agent = list(world.residents.keys())
-#             element = input("Do yu need Special Event on that day? y/n \t")      
-#             while element == 'y':
-#                 name_special = input("Which will agent will have? {}\t".format(", ".join(agent)))
-#                 if name_special not in agent:
-#                     name_special = input("Please enter a name from {}\t".format(", ".join(agent)))
-#                 else:
-#                     agent.remove(name_special)
+            agent = list(world.residents.keys())
+            element = input("Do yu need Special Event on that day? y/n \t")      
+            while element == 'y':
+                name_special = input("Which will agent will have? {}\t".format(", ".join(agent)))
+                if name_special not in agent:
+                    name_special = input("Please enter a name from {}\t".format(", ".join(agent)))
+                else:
+                    agent.remove(name_special)
                 
-#                 special_event = input("---")
-#                 world.residents[name_special].special_event = str(special_event)
-#                 if len(agent) == 0:
-#                     break
-#                 element = input("Do yu need Special Event on that day? y/n \t")   
-#                 world.residents[name_special].special_event = special_event 
+                special_event = input("---")
+                world.residents[name_special].special_event = str(special_event)
+                if len(agent) == 0:
+                    break
+                element = input("Do yu need Special Event on that day? y/n \t")   
+                world.residents[name_special].special_event = special_event 
             for resident in world.residents:
                 world.residents[resident].plan()
+            print(pd.DataFrame(world.plan))
         
         print("Current time is {}:00.".format(world.cur_time))
         
@@ -86,6 +138,7 @@ def run_simulation(hours_to_run=4, continue_simulation=False):
         world.cur_time += 1
         save_simulation_state(world, filename) # save state at the end of each hour
     
+    plot_data(world)
     return world
 
 

@@ -3,13 +3,18 @@ import numpy as np
 import pandas as pd
 import re
 from compare import place_compare, action_compare, calculate_memory_consistency
-import emojis
 import emoji
 
-def extract_emojis(s):
-      return ''.join(c for c in s if c not in emoji.EMOJI_DATA)
-    
 def get_emoji(text):
+    """
+    In order to facilitate readability, when the model generates text, 
+    it also generates emoji. This method extracts emoji separately.
+    
+    Args:
+        text: Text containing emoji and text
+    RETURNS:
+        emoji
+    """
     dic = {}
     for i in text.split('\n'):
         if ":00" in i:
@@ -20,20 +25,33 @@ def get_emoji(text):
             dic[key] = value
     return dic
 
+def extract_emojis(s):
+    """
+    delete emoji on text
+    Args:
+        text: Text containing emoji and text
+    RETURNS:
+        text that do not contains emoji
+    """
+    return ''.join(c for c in s if c not in emoji.EMOJI_DATA)
+
 def last_steps(person):
+    """
+    When matching the corresponding time point, the agent should 
+    do what it planned to do. If not, it will match the memory of 
+    the previous hour.
+    
+    Args:
+        person: agent
+    Returns: 
+        agent's plan or the memory of action that is last hour
+    """
     if "{}:00".format(person.world.cur_time) in person.plan_lst.keys():
         return "I plan to{} at {}".format(person.plan_lst["{}:00".format(person.world.cur_time)],
                                            "{}:00".format(person.world.cur_time)
                                           )
     else:
         return person.memory[-1].replace("I plan to", "I already")
-
-def pd_merge(basic, rag):
-    dic = {}
-    dic["basic"] = get_emoji(basic)
-    dic["rag"] = get_emoji(rag)
-    result = pd.DataFrame(dic)
-    return result
 
 class Person:
 
@@ -58,6 +76,14 @@ class Person:
         
         
     def get_plan(self):
+        """
+        When matching the corresponding time point, the agent should 
+        do what it planned to do. If not, it will match the memory of 
+        the previous hour.
+        
+        Return:
+            string
+        """
         current_time = "{}:00".format(self.world.cur_time)
         introduction = "{} is {}. ".format(self.name, self.personality)
         if current_time in self.plan_lst.keys():
@@ -69,18 +95,17 @@ class Person:
             return introduction + self.memory[-1]
 
     def plan(self):
-        # create daily plan whenever the new day starts
+        """
+        create daily plan whenever the new day starts
+        """
+        
+        ### Generate daily plans through normal model and RAG model
         prompt = generate_prompt("daily_plan", self, self.world)
         response = generate_response(prompt, max_new_tokens=1000, min_new_tokens=100)
         rag_respones = rag_response(prompt, self)
         rag_respones = str(rag_respones)
         
         daily_plan = response.split("<Output>:")[1]     # delete prompt template provided
-        
-#         print("basic: \n", daily_plan, "\nrag:\n", rag_respones)
-#         print("{}'s daily plan compare list between baisc model and rag model: ".format(self.name.split(" ")[0]))
-#         print(pd_merge(daily_plan, rag_respones))
-        
         
         ### This part will compare the result between basic model and rag model, the best one will be use
         if self.special_event == None:
@@ -94,6 +119,9 @@ class Person:
         self.world.results['plan']['basic_model'].append(sentence_1_result)
         self.world.results['plan']['rag_model'].append(sentence_2_result)
         
+        self.world.plan["{}'s basic plan".format(self.name.split(" ")[0])] = get_emoji(daily_plan)
+        self.world.plan["{}'s rag plan".format(self.name.split(" ")[0])] = get_emoji(rag_respones)
+        
         if sentence_1_result > sentence_2_result:
             print("The Basic Model is more better!")
             self.daily_plan = extract_emojis(daily_plan)
@@ -103,7 +131,7 @@ class Person:
             print("The RAG Model is more better!")
             self.daily_plan = extract_emojis(rag_respones)
             self.world.results["frequency"].append("rag")
-        
+        ### Convert string format to dictionary mode
         for text in self.daily_plan.split('\n'):
             plan_value = extract_emojis(text)
 
@@ -120,15 +148,19 @@ class Person:
                     break
     
     def retrieve(self):
+        """
+        When this method runs, it proves that the day has ended, the 
+        memory of the day is summarized, and then the settings are initialized.
+        """
         prompt = generate_prompt("summary_memory", self, self.world)
         response = generate_response(prompt, max_new_tokens=200, min_new_tokens=50)
-        rag_respones = rag_response(prompt, self)
+        rag_respones = str(rag_response(prompt, self)).split("<Information Given>")[0]
         summary = response.split("<Output>:")[1].split('\n')
         
         basic_summary = ""
         for i in summary:
             if len(i) != 0:
-                basic_summary = i
+                basic_summary = i.split("<Information Given>")[0]
                 break
         
         summary_1_result = calculate_memory_consistency(self.daily_plan, basic_summary)
@@ -142,7 +174,7 @@ class Person:
             
         else:
             self.world.results["frequency"].append("rag")
-            self.summary.append(rag_summary)
+            self.summary.append(rag_respones)
         
         self.daily_plan = None
         self.plan_lst = {}
@@ -150,6 +182,9 @@ class Person:
 
 
     def action(self, task="move"):
+        """
+        Action and location determination
+        """
         if task == "move":
             if "{}:00".format(self.world.cur_time) not in list(self.plan_lst.keys()):
                 last_plan_time = self.memory[-1].split(":00")[0].split(" ")[0]

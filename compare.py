@@ -13,16 +13,21 @@ with open("world_settings.json", "r") as json_file:
     data = json.load(json_file)
     town_areas = data["town_areas"]
 
-agents = ["Han", "Lee", "Wang"]
-for resident in agents:
-    town_areas["{}'s Home".format(resident)] = "Here is {}'s Home is a place that {} sleeps, wakes up, and usually relax on weekends.".format(resident, resident)
 building_description = {}
 for k, v in town_areas.items():
     building_description[k] = [i for i in jieba.cut(v, cut_all=False) if i != ' ' and i not in stopwords]
     
 
 
-def similarity(text1, text2):        
+def similarity(text1, text2):
+    """
+    Calculate sentence similarity and give a score.
+    Args:
+        text_1: target text
+        text2: Compare text
+    RETURNS:
+        a score that is float
+    """
     cos_text1 = (Counter(text1))
     cos_text2 = (Counter(text2))
     similarity_text1 = []
@@ -38,6 +43,13 @@ def similarity(text1, text2):
     
     
 def place_compare(llama_2_place, llama_index_place, plan):
+    """
+    Compare locations based on similarity and then choose the best 
+    result between normal and RAG models.
+    
+    RETURNS:
+        rag or basic
+    """
     llama_2_lst = "{} on {}".format(plan, llama_2_place)
     llama_index_lst = "{} on {}".format(plan, llama_index_place)
         
@@ -54,6 +66,13 @@ def place_compare(llama_2_place, llama_index_place, plan):
     
     
 def action_compare(llama_2_action, llama_index_action, plan):
+    """
+    Compare actions based on similarity and then choose the best 
+    result between normal and RAG models.
+    
+    RETURNS:
+        rag or basic, text
+    """
     plan = [i for i in jieba.cut(plan, cut_all=False) if i != ' ' and i not in stopwords]
     
     llama_2_actions = [i for i in jieba.cut(llama_2_action, cut_all=False) if i != ' ' and i not in stopwords]
@@ -71,6 +90,13 @@ def action_compare(llama_2_action, llama_index_action, plan):
     
     
 def calculate_memory_consistency(summary, plan):
+     """
+    Compare text based on similarity and then choose the best 
+    result between normal and RAG models.
+    
+    RETURNS:
+        float number
+    """
     embedding_1= sentence_model.encode(summary, convert_to_tensor=True)
     embedding_2 = sentence_model.encode(plan, convert_to_tensor=True)
     score = util.pytorch_cos_sim(embedding_1, embedding_2).tolist()[0][0]
