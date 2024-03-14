@@ -24,6 +24,11 @@ which is essential to reproduce our project.
 
 ## Reproducing Results
 To run the simulation, you simply need to run the `main.py`. This file will call the functions we defined in other files, so it is the primary entry point for our project and executes the necessary code to generate the results.
+
+### Add openai api key to the `llm.py`
+In order to run the code, an openai api key is needed.
+Add your api key to `llm.py`  `rate_plan` function where a comment says # add your api key here.
+
 ### Running `main.py`
 Follow these steps to run `main.py`:
 1. **Open Terminal or Command Line:**
