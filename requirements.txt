@@ -4,5 +4,7 @@ sentencepiece
 torch
 sentence-transformers
 bitsandbytes
-llama-index=0.9.44
+llama-index=0.10.5
 openai
+emoji
+jieba
