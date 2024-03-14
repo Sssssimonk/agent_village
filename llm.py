@@ -201,10 +201,16 @@ from openai import OpenAI
 import re
 
 api_key = ''          # Replace this line with your personal openai api key
-def rate_plan(plan1, plan2):
+def rate_plan(plan1, plan2, person):
     client = OpenAI(api_key=api_key)
-    system = {"role": "system", "content": "You are a useful assistant. \
-              You will rate a person's 24 hour plan from 1 to 100 based on the personal description. "}
+    description = ""
+    if person. != None:
+        description = person.description + " I plan to " + self.special_event + " Today."
+        
+    else:
+        description = person.description
+    content = "You are a useful assistant. You will rate a person's 24 hour plan from 1 to 100 based on the personal description that is {}".format(description)
+    system = {"role": "system", "content": content}
     format = """
             The answer should be in this format: 
             the rating for plan1: 
@@ -224,6 +230,7 @@ def rate_plan(plan1, plan2):
         
     scores[0] = int(scores[0])
     scores[1] = int(scores[1])
+    print(scores)
     return scores # a list of str (each str is the score for the plan)    
     
     

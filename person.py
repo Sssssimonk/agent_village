@@ -110,7 +110,7 @@ class Person:
         ### This part will compare the result between basic model and rag model, the best one will be use
         
         try:
-            sentence_1_result, sentence_2_result = rate_plan(extract_emojis(daily_plan), extract_emojis(rag_respones))
+            sentence_1_result, sentence_2_result = rate_plan(extract_emojis(daily_plan), extract_emojis(rag_respones), self)
             print(sentence_1_result, sentence_2_result)
            
         except:
