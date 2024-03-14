@@ -7,11 +7,14 @@ import logging
 import sys
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 logging.getLogger().addHandler(logging.StreamHandler(stream=sys.stdout))
-from llama_index.core import VectorStoreIndex, SimpleDirectoryReader, ServiceContext, Document
+from llama_index.core import VectorStoreIndex, ServiceContext, Document
 from llama_index.llms.huggingface import HuggingFaceLLM
 from llama_index.core import PromptTemplate
 
 from sentence_transformers import SentenceTransformer, util
+
+from openai import OpenAI
+import re
 
 
 # ==================== Initialzied HF model ==================== # 
@@ -103,15 +106,10 @@ def generate_prompt(task, person, world):
         plan_action = "I plan to {}at {}:00.".format(person.plan_lst["{}:00".format(world.cur_time)][0],
                                                      world.cur_time
                                                     )
-#         if world.cur_time > 8:
-#             plan_action += "I already {}at {}:00.".format(person.plan_lst["{}:00".format(world.cur_time - 1)][0],
-#                                                           world.cur_time - 1
-#                                                          )
         prompt = prompt.format(person.name,
                                person.description,
                                person.location,
                                plan_action,
-#                                before_action,
                                world.cur_time)
     if task == "if_chat":
         target_name = []
@@ -196,12 +194,11 @@ def calculate_memory_consistency(summary, plan):
     embedding_2 = sentence_model.encode(plan, convert_to_tensor=True)
     score = util.pytorch_cos_sim(embedding_1, embedding_2).tolist()[0][0]
     return score
-    
-from openai import OpenAI
-import re
 
-api_key = ''          # Replace this line with your personal openai api key
+
 def rate_plan(plan1, plan2):
+    api_key = ''          # Replace this line with your personal openai api key
+
     client = OpenAI(api_key=api_key)
     system = {"role": "system", "content": "You are a useful assistant. \
               You will rate a person's 24 hour plan from 1 to 100 based on the personal description. "}
@@ -212,7 +209,7 @@ def rate_plan(plan1, plan2):
 
             reasons:
             """
-    user = {"role": "user", "content": "Here is plan1: " + plan1 + "\nHere is plan2: " + plan2 +format}
+    user = {"role": "user", "content": "Here is plan1: " + plan1 + "\n Here is plan2: " + plan2 +format}
 
     completion = client.chat.completions.create(model="gpt-3.5-turbo",
                                                 messages=[system, user]
@@ -224,7 +221,7 @@ def rate_plan(plan1, plan2):
         
     scores[0] = int(scores[0])
     scores[1] = int(scores[1])
-    return scores # a list of str (each str is the score for the plan)    
+    return scores # a list of score
     
     
     
