@@ -4,4 +4,5 @@ sentencepiece
 torch
 sentence-transformers
 bitsandbytes
-llama-index
+llama-index=0.9.44
+openai
