@@ -2,10 +2,8 @@ import json
 import jieba            
 import numpy as np
 from collections import Counter
-# from sentence_transformers import SentenceTransformer, util
 from gensim import corpora, models, similarities
 from collections import defaultdict
-# sentence_model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
 
 stopwords = {}.fromkeys([',', '.', ';',':'])
 

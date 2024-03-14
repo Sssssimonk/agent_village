@@ -1,4 +1,4 @@
-from llm import generate_prompt, generate_response, rag_response, calculate_memory_consistency
+from llm import generate_prompt, generate_response, rag_response, calculate_memory_consistency, rate_plan
 import numpy as np
 import pandas as pd
 import re
@@ -108,13 +108,19 @@ class Person:
         daily_plan = response.split("<Output>:")[1]     # delete prompt template provided
         
         ### This part will compare the result between basic model and rag model, the best one will be use
-        if self.special_event == None:
-            sentence_1_result = calculate_memory_consistency(self.description, extract_emojis(daily_plan))
-            sentence_2_result = calculate_memory_consistency(self.description, extract_emojis(rag_respones))
-        else:
-            special_event = "I plan to " + self.special_event + " Today."
-            sentence_1_result = calculate_memory_consistency(special_event, extract_emojis(daily_plan))
-            sentence_2_result = calculate_memory_consistency(special_event, extract_emojis(rag_respones))
+        
+        try:
+            sentence_1_result, sentence_2_result = rate_plan(extract_emojis(daily_plan), extract_emojis(rag_respones))
+            print(sentence_1_result, sentence_2_result)
+           
+        except:
+            if self.special_event == None:
+                sentence_1_result = calculate_memory_consistency(self.description, extract_emojis(daily_plan)) * 100
+                sentence_2_result = calculate_memory_consistency(self.description, extract_emojis(rag_respones)) * 100
+            else:
+                special_event = "I plan to " + self.special_event + " Today."
+                sentence_1_result = calculate_memory_consistency(special_event, extract_emojis(daily_plan)) * 100
+                sentence_2_result = calculate_memory_consistency(special_event, extract_emojis(rag_respones)) * 100
         
         self.world.results['plan']['basic_model'].append(sentence_1_result)
         self.world.results['plan']['rag_model'].append(sentence_2_result)
@@ -254,8 +260,7 @@ class Person:
                 
                 if building.lower() in rag_str_respones.lower():
                     rag_str_respones = building
-            
-            print(rag_str_respones, place)
+
             if place not in list(self.world.town_areas.keys()):
                 place = "Housing Area"
                 

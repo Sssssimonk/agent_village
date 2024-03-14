@@ -197,7 +197,34 @@ def calculate_memory_consistency(summary, plan):
     score = util.pytorch_cos_sim(embedding_1, embedding_2).tolist()[0][0]
     return score
     
-    
+from openai import OpenAI
+import re
+
+api_key = ''          # Replace this line with your personal openai api key
+def rate_plan(plan1, plan2):
+    client = OpenAI(api_key=api_key)
+    system = {"role": "system", "content": "You are a useful assistant. \
+              You will rate a person's 24 hour plan from 1 to 100 based on the personal description. "}
+    format = """
+            The answer should be in this format: 
+            the rating for plan1: 
+            the rating for plan2:
+
+            reasons:
+            """
+    user = {"role": "user", "content": "Here is plan1: " + plan1 + "\nHere is plan2: " + plan2 +format}
+
+    completion = client.chat.completions.create(model="gpt-3.5-turbo",
+                                                messages=[system, user]
+                                                )
+    output = str(completion.choices[0].message)
+    pattern = r'(?<=: )\d+'
+    scores = re.findall(pattern, output)
+
+        
+    scores[0] = int(scores[0])
+    scores[1] = int(scores[1])
+    return scores # a list of str (each str is the score for the plan)    
     
     
     

@@ -1,3 +1,6 @@
+import warnings
+warnings.filterwarnings("ignore")
+
 from person import *
 from world import *
 from global_methods import *
@@ -104,7 +107,7 @@ def run_simulation(hours_to_run=4, continue_simulation=False):
             
             continue
         
-        
+        ### check if it's new day 
         if world.cur_time == 8:
             world.reset_date()
             agent = list(world.residents.keys())
@@ -116,7 +119,7 @@ def run_simulation(hours_to_run=4, continue_simulation=False):
                 else:
                     agent.remove(name_special)
                 
-                special_event = input("---")
+                special_event = input("Please enter event and time of excute event: \t")
                 world.residents[name_special].special_event = str(special_event)
                 if len(agent) == 0:
                     break
@@ -153,7 +156,4 @@ def run_simulation(hours_to_run=4, continue_simulation=False):
 
 
 if __name__ == '__main__':
-    if len(sys.argv) > 1: # continue on previous simulation
-        run_simulation(int(sys.argv[1]), bool(sys.argv[2]))
-    else: # start a new simulation
-        run_simulation(int(sys.argv[1]))
+    run_simulation(int(sys.argv[1]))

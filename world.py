@@ -2,8 +2,8 @@ import networkx as nx
 import json
 from person import Person
 import numpy as np
-from llm import generate_index, generate_prompt, generate_response, rag_response
-from compare import place_compare, action_compare, calculate_memory_consistency
+from llm import generate_index, generate_prompt, generate_response, rag_response, calculate_memory_consistency
+from compare import place_compare, action_compare
 
 def process_answer(text):
     """
@@ -15,7 +15,7 @@ def process_answer(text):
     """
     stop_labels = ["|>", "<|", "<", ">", "Note:", "ASSISTANT", 
                    "USER", "Other Agents:", "Other Agents", "\n",
-                  "have a conversation:"]
+                  "have a conversation:", "have a conversation with"]
     result = []
     for i in text.split("\n"):
         if np.sum(np.array([True if j in i else False for j in stop_labels])) == 0:
@@ -143,6 +143,7 @@ class World:
         
         action_basic_compare = calculate_memory_consistency(action_intro, response)
         action_rag_compare = calculate_memory_consistency(action_intro, rag_respones)
+        
         if action_basic_compare > action_rag_compare:
             print("The Basic model is better, under content is Basic Intercation.")
             best_result = response
