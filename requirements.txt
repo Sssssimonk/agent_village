@@ -4,7 +4,6 @@
  torch
  sentence-transformers
  bitsandbytes
- llama-index==0.10.10
  openai
  emoji
  jieba
@@ -15,3 +14,5 @@
  re
  llama-index-embeddings-huggingface
  llama-index-llms-huggingface
+
+ llama-index==0.10.10
