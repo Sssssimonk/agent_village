@@ -198,7 +198,7 @@ def calculate_memory_consistency(summary, plan):
     score = util.pytorch_cos_sim(embedding_1, embedding_2).tolist()[0][0]
     return score
 
-api_key = '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'          # Replace this line with your personal openai api key
+api_key = ''          # Replace this line with your personal openai api key
 def rate_plan(plan1, plan2, person):
     client = OpenAI(api_key=api_key)
     description = ""
