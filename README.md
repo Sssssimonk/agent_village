@@ -19,6 +19,8 @@ pip install -r requirements.txt
 This command should be executed in the environment where you intend to run the project. It will automatically install all the libraries and packages specified in the requirements.txt file,
 which is essential to reproduce our project.
 
+If an error says package not found after requirements.txt is installed, try to install that package manually.
+
 ## Parameters
 1. `hours_to_run` (optional): The number of hours you want the simulation to run. Default is 16
 
