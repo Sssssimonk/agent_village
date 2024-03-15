@@ -22,7 +22,7 @@ Our methodology encompasses the design, implementation, and comparative analysis
 Llama2 comes with a standard memory setup, where the model's internal state acts as the sole repository for information retention and retrieval, which mimics a traditional language model approach. In this architecture, the generative agent relies on its pre-trained knowledge and the information acquired during the simulation, where the memory is static. Agents use this memory model to generate responses and make decisions based on the static knowledge embedded within the model's parameters and context provided by the simulation environment.
 
 ### Llama Index for RAG
-Llama Index for RAG introduces a dynamic external memory component to the conventional Llama2 setup. The RAG structure enables the model to query an extensive external knowledge  base in real-time, augmenting the agent's responses with information retrieved from the external database. The RAG model interacts with the Llama Index, an extensive database of information that can be contextually searched during an agent's decision-making process. The approach brings inclusion for up-to-date and relevant data information that may not be presented in the original training set. Agents equipped with the RAG memory structure can access a wider range of information beyond their internal knowledge base, which enables more nuanced and informed interaction as agents can pull relevant data from the Llama Index to generate responses and make decisions.
+Llama Index for RAG introduces a dynamic external memory component to the conventional Llama2 setup. The RAG structure enables the model to query an extensive external knowledge base in real-time, augmenting the agent's responses with information retrieved from the external database. The RAG model interacts with the Llama Index, an extensive database of information that can be contextually searched during an agent's decision-making process. The approach brings inclusion for up-to-date and relevant data information that may not be presented in the original training set. Agents equipped with the RAG memory structure can access a wider range of information beyond their internal knowledge base, which enables more nuanced and informed interaction as agents can pull relevant data from the Llama Index to generate responses and make decisions.
 
 # Results
 ### Memory Consistency
@@ -34,11 +34,11 @@ Check out the chart below to see the daily memory consistency levels of each age
 ![Memory Consistency](/docs/memory_consistency.png)
 
 ### Difference in Plans
-Our generative agents are scored on their planning abilities, and the results highlights the sophisticated capabilities of agents with RAG structure.  
+Our generative agents are scored on their planning abilities, and the results highlight the sophisticated capabilities of agents with RAG structure.  
 
 **ChatGPT-4 Overall Evaluation Score:**
 * Basic Agent: 71/100, reflecting decent planning.
-* RAG Agent: 91/100, r4eflecing strategic and adaptable planning.
+* RAG Agent: 91/100, reflecting strategic and adaptable planning.
 
 ![Plan Score](/docs/plan_score.jpg)
 
@@ -50,4 +50,4 @@ When we introduced additional details about our agents' preferences and goals, t
 The contrasting scores and the RAG's responsiveness to extra description underline the potential of RAG, in creating agents that can think ahead and adjust to new circumstances, much like humans do. This insightful comparison reinforces the value of sophisticated RAG memory structures in developing agents that are **not just reactive, but truly responsive to their environment.**
 
 # Conclusion
-The comparative analysis conducted in our simulated environment, agent village, provides compelling evidence of the efficacy of Retrieval-Augmented Generation (RAG) as a superior memory structure for generative agents throughout a three-day simulation, where both RAG and standard model ran. The RAG-equipped agents not only sustained a steady memory consistency but also showed an upward trend, suggesting a learning curve where the agents improved their memory coherence over time. Conversely, basic agents experienced a gradual decline in memory consistency. This outcome highlights the limitations of a static knowledge base in dynamic scenarios. In conclusion, these findings underscore the potential of RAG structures in enhancing the reliability of interactions in AI-driven simulations and virtual environments.
+The comparative analysis conducted in our simulated environment, agent village, provides compelling evidence of the efficacy of Retrieval-Augmented Generation (RAG) as a superior memory structure for generative agents throughout a three-day simulation, where both RAG and standard model ran. The RAG-equipped agents not only sustained a steady memory consistency but also showed an upward trend, suggesting a learning curve where the agents improved their memory coherence over time. Conversely, basic agents experienced a gradual decline in memory consistency. This outcome highlights the limitations of a static knowledge base in dynamic scenarios. In conclusion, these findings underscore the potential of RAG structures in enhancing the reliability of interactions in AI-driven simulations, virtual environments, and natural language processing.
