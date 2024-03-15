@@ -228,7 +228,7 @@ def rate_plan(plan1, plan2, person):
         
     scores[0] = int(scores[0])
     scores[1] = int(scores[1])
-    print(scores)
+
     return scores # a list of str (each str is the score for the plan)    
     
     

@@ -12,7 +12,7 @@ def get_emoji(text):
     
     Args:
         text: Text containing emoji and text
-    RETURNS：
+    RETURNS:
         emoji
     """
     dic = {}
@@ -30,7 +30,7 @@ def extract_emojis(s):
     delete emoji on text
     Args:
         text: Text containing emoji and text
-    RETURNS：
+    RETURNS:
         text that do not contains emoji
     """
     return ''.join(c for c in s if c not in emoji.EMOJI_DATA)
@@ -111,7 +111,6 @@ class Person:
         
         try:
             sentence_1_result, sentence_2_result = rate_plan(extract_emojis(daily_plan), extract_emojis(rag_respones), self)
-            print(sentence_1_result, sentence_2_result)
            
         except:
             if self.special_event == None:
@@ -121,7 +120,7 @@ class Person:
                 special_event = "I plan to " + self.special_event + " Today."
                 sentence_1_result = calculate_memory_consistency(special_event, extract_emojis(daily_plan)) * 100
                 sentence_2_result = calculate_memory_consistency(special_event, extract_emojis(rag_respones)) * 100
-        
+        print(sentence_1_result, sentence_2_result)
         self.world.results['plan']['basic_model'].append(sentence_1_result)
         self.world.results['plan']['rag_model'].append(sentence_2_result)
         
@@ -185,6 +184,7 @@ class Person:
         self.daily_plan = None
         self.plan_lst = {}
         self.memory = []
+        self.special_event = None
 
 
     def action(self, task="move"):

@@ -2,8 +2,7 @@ import json
 import jieba            
 import numpy as np
 from collections import Counter
-from gensim import corpora, models, similarities
-from collections import defaultdict
+
 
 stopwords = {}.fromkeys([',', '.', ';',':'])
 
