@@ -1,17 +1,17 @@
-networkx
-transformers
-sentencepiece
-torch
-sentence-transformers
-bitsandbytes
-llama-index==0.10.10
-openai
-emoji
-jieba
-pandas
-numpy
-matplotlib
-json
-re
-llama-index-embeddings-huggingface
-llama-index-llms-huggingface
+ networkx
+ transformers
+ sentencepiece
+ torch
+ sentence-transformers
+ bitsandbytes
+ llama-index==0.10.10
+ openai
+ emoji
+ jieba
+ pandas
+ numpy
+ matplotlib
+ json
+ re
+ llama-index-embeddings-huggingface
+ llama-index-llms-huggingface
