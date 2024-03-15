@@ -12,7 +12,8 @@ from llama_index.llms.huggingface import HuggingFaceLLM
 from llama_index.core import PromptTemplate
 
 from sentence_transformers import SentenceTransformer, util
-
+from openai import OpenAI
+import re
 
 # ==================== Initialzied HF model ==================== # 
 basic_llama = None 
@@ -196,16 +197,13 @@ def calculate_memory_consistency(summary, plan):
     embedding_2 = sentence_model.encode(plan, convert_to_tensor=True)
     score = util.pytorch_cos_sim(embedding_1, embedding_2).tolist()[0][0]
     return score
-    
-from openai import OpenAI
-import re
 
-api_key = ''          # Replace this line with your personal openai api key
+api_key = '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'          # Replace this line with your personal openai api key
 def rate_plan(plan1, plan2, person):
     client = OpenAI(api_key=api_key)
     description = ""
-    if person. != None:
-        description = person.description + " I plan to " + self.special_event + " Today."
+    if person.special_event  != None:
+        description = person.description + " I plan to " + person.special_event + " Today."
         
     else:
         description = person.description
