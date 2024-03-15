@@ -203,7 +203,11 @@ def rate_plan(plan1, plan2, person):
     client = OpenAI(api_key=api_key)
     description = ""
     if person.special_event  != None:
-        description = person.description + " I plan to " + person.special_event + " Today."
+        description = "{} Today is {} and {}, I plan to {} Today.".format(person.description,
+                                                                          person.world.date,
+                                                                          person.world.weather,
+                                                                          person.special_event
+                                                                         )
         
     else:
         description = person.description
